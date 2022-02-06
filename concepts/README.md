@@ -8,7 +8,7 @@ Minecraft 官方未提供源代码，因此开发模组所看到的「Minecraft 
 
 ```groovy
 minecraft {
-    mappings channel: 'official', version: '1.17.1' }
+    mappings channel: 'official', version: '1.17.1'
     runs { /* ... */ }
 }
 ```
