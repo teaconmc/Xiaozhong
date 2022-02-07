@@ -33,7 +33,7 @@ Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资
 
 ### `pack.mcmeta`
 
-`pack.mcmeta` 是数据包和资源包共用的声明文件，为 JSON 格式。以下为 `pack.mcmeta` 的一个示例：
+`pack.mcmeta` 是数据包和资源包共用的声明文件，为 [JSON 格式](https://www.json.org/json-zh.html)。以下为 `pack.mcmeta` 的一个示例：
 
 ```json
 {
@@ -48,17 +48,17 @@ Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资
 
 ### `META-INF/mods.toml`
 
-通常情况下，所有 Forge 模组都需要在 `META-INF` 目录下指定一个 TOML 格式的 `mods.toml` 文件。`mods.toml` 文件指定了模组的相关信息。
+通常情况下，所有 Forge 模组都需要在 `META-INF` 目录下指定一个 [TOML 格式](https://toml.io/cn/)的 `mods.toml` 文件。`mods.toml` 文件指定了模组的相关信息。
 
 Forge MDK 默认提供的 `mods.toml` 以注释的形式为其提供了详尽的解释。以下为 `mods.toml` 的一个示例：
 
 ```toml
 modLoader="javafml" # 模组所使用的加载器，此处固定
-loaderVersion="[39,)" # 版本号，通常和 Forge 的大版本号有关
+loaderVersion="[39,)" # 加载器版本号，通常和 Forge 的大版本号有关
 license="All rights reserved" # 模组所采用的授权协议
 
 [[mods]] # 模组本体信息
-modId="xiaozhong" # 模组 ID，是模组的唯一标识符
+modId="xiaozhong" # 模组 ID
 version="${file.jarVersion}" # 模组的版本号，此处固定
 authors="TeaConMC" # 模组的作者，可在此填写自己的常用名称
 displayName="Xiaozhong" # 模组名称，通常和 build.gradle 所写相同
@@ -71,8 +71,6 @@ versionRange="[39,)" # 相关依赖的版本号范围
 ordering="NONE" # 相关依赖和模组本体的加载顺序，也可以是 BEFORE 或 AFTER
 side="BOTH" # 相关依赖是否一定要在客户端或服务端出现，也可以是 CLIENT 或 SERVER
 ```
-
-!> 模组 ID 是模组的唯一标识符，也应当是所有和模组相关的资源的[命名空间](https://minecraft.fandom.com/zh/wiki/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4ID)，因此在设计时也应当考虑到命名空间的相关约定。
 
 !> 模组开发者必须通过 `mods.toml` 指定一个协议，否则模组将无法启动。基于 TeaCon 的举办理念，我们鼓励模组开发者采用一个自由或开源的授权协议。
 
@@ -93,3 +91,6 @@ side="BOTH" # 相关依赖是否一定要在客户端或服务端出现，也可
 | 数据包   | 配方     | `recipes/`     | `.json`  | 路径：`minecraft:bread`<br />文件：`data/minecraft/recipes/bread.json` |
 | 数据包   | 战利品表 | `loot_tables/` | `.json`  | 路径：`minecraft:blocks/ice`<br />文件：`data/minecraft/loot_tables/blocks/ice.json` |
 
+资源路径在源代码中为 `ResourceLocation`，如 `new ResourceLocation("foo", "bar")` 即代表 `foo:bar` 这一资源路径。
+
+!> 模组 ID 是模组的唯一标识符，也应当是所有和模组相关的资源的[命名空间](https://minecraft.fandom.com/zh/wiki/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4ID)：在管理资源时应当尽量使用模组 ID 作为命名空间。本篇指南所有新添加的资源均归属于 `xiaozhong` 命名空间。

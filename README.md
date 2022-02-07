@@ -8,11 +8,10 @@
 
 ## 本地预览
 
-本篇指南基于 Docsify，因此仅需在命令行输入以下两个命令即可启用：
+本篇指南基于 Docsify，因此仅需在命令行输入以下两个命令即可启用本地预览：
 
 ```bash
 npm install -g docsify-cli
-docsify serve
+docsify serve -o
 ```
 
-默认的启动端口是 3000，亦即访问 <http://localhost:3000> 即可查看。

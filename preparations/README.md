@@ -6,18 +6,67 @@
 
 如果你下载的是形如 `forge-1.18.1-39.0.66-mdk.zip` 的完整文件，那么恭喜你，下载成功了：找个合适的地方解压这个压缩包吧。
 
+## 模组 ID
+
+除去一个帅气的模组名称外，每个模组都需要一个全局唯一的模组 ID。
+
+!> 模组 ID 应当仅由数字（`0-9`）、小写字母（`a-z`）、和下划线（`_`）组成，且尽量避免冲突：`industrialcraft2` 或者 `industrial_craft_2` 作为模组 ID 看起来就比 `ic2` 好很多（当然，如果你是 `ic2` 的作者，那当我没说）。
+
+本篇指南的模组 ID 统一使用 `xiaozhong`。
+
 ## 配置文件
 
 Forge MDK 的配置文件是 `build.gradle`。对 Gradle 熟悉的读者应该注意到了这是 Gradle 的核心配置文件。
 
 ?> 如欲进一步了解 Gradle，可参阅 [Gradle 官方用户指南](https://docs.gradle.org/current/userguide/userguide.html)。
 
-主要需要修改的地方有两处，一处在 `build.gradle` 相对靠前的位置，和模组的发布有关：
+主要需要修改的地方有三处，一处在 `build.gradle` 相对靠前的位置，和模组的发布有关：
 
 ```groovy
 version = '1.0.0' // 模组版本号
 group = 'org.teaconmc' // 模组的 Maven 组名，通常和包名相同
 archivesBaseName = 'Xiaozhong' // 最后生成的模组文件名前缀（这里将会生成 Xiaozhong-1.0.0.jar）
+```
+
+一处在 `minecraft {}` 块下的 `run {}` 块内，约定了启动选项：
+
+```groovy
+minecraft {
+    mappings channel: 'official', version: '1.17.1'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                xiaozhong { // 第一处修改：此处需要更改为模组 ID
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                examplemod { // 第二处修改：此处需要更改为模组 ID
+                    source sourceSets.main
+                }
+            }
+        }
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'xiaozhong' /* 第三处修改：此处需要更改为模组 ID */, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                examplemod { // 第四处修改：此处需要更改为模组 ID
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
 ```
 
 一处在 `jar {}` 块内，约定了 JAR 的版本信息：
