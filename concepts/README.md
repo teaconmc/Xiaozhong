@@ -15,14 +15,6 @@ minecraft {
 
 ?> Forge MDK 默认指定的映射表未包含变量名的相关数据，而一个名叫「Parchment」的项目正好填补了这一空白。如欲使用「Parchment」映射表，请参阅 [Parchment 官方文档](https://github.com/ParchmentMC/Librarian/blob/dev/docs/FORGEGRADLE.md)。
 
-## 源代码
-
-Forge MDK 默认从 `src/main/java` 检索 Java 源代码，将其编译并进行适当处理后封装到最终的模组文件中。
-
-!> 源代码通常使用 UTF-8 作为文件编码，请调整开发工具的相关设置以确保编码正确性，并保证编译时所使用的编码也是正常的。后一个目标通常可以通过设置  `JAVA_TOOL_OPTIONS` 以及 `GRADLE_OPTS` 两个环境变量的值为 `-Dfile.encoding=UTF-8` 来达成。
-
-通常情况下，所有 Forge 模组都需要在源代码中添加一个类作为模组的「主类」——我们稍后会介绍模组的「主类」。
-
 ## 资源文件
 
 Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资源文件，并几乎不加改动地复制到生成的模组文件中。
@@ -64,7 +56,7 @@ authors="TeaConMC" # 模组的作者，可在此填写自己的常用名称
 displayName="Xiaozhong" # 模组名称，通常和 build.gradle 所写相同
 description="The example mod for xiaozhong" # 模组的相关介绍，可以多行
 
-[[dependencies.cannon_fire]] # 模组的相关依赖，通常会写上对 Forge 版本的依赖
+[[dependencies.xiaozhong]] # 模组的相关依赖，通常会写上对 Forge 版本的依赖
 modId="forge" # 相关依赖的模组 ID
 mandatory=true # 相关依赖是否为必须
 versionRange="[39,)" # 相关依赖的版本号范围
@@ -94,3 +86,69 @@ side="BOTH" # 相关依赖是否一定要在客户端或服务端出现，也可
 资源路径在源代码中为 `ResourceLocation`，如 `new ResourceLocation("foo", "bar")` 即代表 `foo:bar` 这一资源路径。
 
 !> 模组 ID 是模组的唯一标识符，也应当是所有和模组相关的资源的[命名空间](https://minecraft.fandom.com/zh/wiki/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4ID)：在管理资源时应当尽量使用模组 ID 作为命名空间。本篇指南所有新添加的资源均归属于 `xiaozhong` 命名空间。
+
+## 源代码
+
+Forge MDK 默认从 `src/main/java` 检索 Java 源代码，将其编译并进行适当处理后封装到最终的模组文件中。
+
+!> 源代码通常使用 UTF-8 作为文件编码，请调整开发工具的相关设置以确保编码正确性，并保证编译时所使用的编码也是正常的。后一个目标通常可以通过设置  `JAVA_TOOL_OPTIONS` 以及 `GRADLE_OPTS` 两个环境变量的值为 `-Dfile.encoding=UTF-8` 来达成。
+
+### 模组主类
+
+通常情况下，所有 Forge 模组都需要在源代码中添加一个类作为模组主类。Forge MDK 默认内置了 `ExampleMod` 作为主类，实际模组开发时可将其修改为自己的主类，也可直接删去并自行创建主类。
+
+模组的主类需要使用 `@Mod` 注解标识，并在参数中声明模组 ID。以下是一个典型的主类：
+
+```java
+package org.teacon.xiaozhong;
+
+import net.minecraftforge.fml.common.Mod;
+
+@Mod("xiaozhong")
+public class Xiaozhong {}
+```
+
+## 事件
+
+模组的许多代码都是通过事件系统触发的。和大多数框架的事件系统一样，不同的事件归属于不同的事件总线。
+
+Forge 的事件总线均为 `IEventBus` 接口的实例。模组开发者能够直接接触到的事件总线有两种：
+
+* Forge 总线：一般处理游戏启动时能够触发的事件，可通过 `MinecraftForge.EVENT_BUS` 获得。
+* 模组总线：一般处理游戏未启动时也会触发的事件，可通过 `FMLJavaModLoadingContext.get().getModEventBus()` 获得。
+
+?> 区分一个事件属于何种总线可以通过判断是否实现了 `IModBusEvent` 接口确定：实现了 `IModBusEvent` 接口的事件经由模组总线触发，否则经由 Forge 总线触发。
+
+模组开发者可通过直接调用事件总线的 `addListener` 方法注册监听器，也可通过 `@Mod.EventBusSubscriber` 注解自动注册。以下是一个使用该注解自动注册监听器的例子：
+
+```java
+package org.teacon.xiaozhong;
+
+import net.minecraft.Util;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+
+// 所有自动注册监听器的类均需使用该注解标识
+// bus 为对应的事件总线，Bus.FORGE 为 Forge 总线，Bus.MOD 为模组总线
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+/*
+// 如果只希望在游戏客户端注册事件，请添加 value 参数
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+*/
+public class PlayerLoggedInHandler {
+    // 监听器需为 public static 方法，并使用 @SubscribeEvent 注解
+    // 监听器的方法名可自由选取，方法参数为对应的事件，在事件触发时作为参数传入
+    @SubscribeEvent
+    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
+        var text = new TextComponent("Welcome to xiaozhong!");
+        event.getPlayer().sendMessage(text, Util.NIL_UUID);
+    }
+}
+```
+
+?> 绝大多数场合下，模组开发者无需手动注册监听器，亦无需获取相应的 `IEventBus`。
+
