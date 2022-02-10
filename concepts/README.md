@@ -2,19 +2,6 @@
 
 以下是本篇指南所用到的基本概念。对部分 Minecraft 模组玩家和资源包 / 数据包创作者来说，一些概念可能已经相对熟悉了。
 
-## 映射表
-
-Minecraft 官方未提供源代码，因此开发模组所看到的「Minecraft 源代码」均由一个名叫 ForgeGradle 的工具内部处理完成。Forge MDK 默认引用了这一工具。为使 ForgeGradle 正确处理字段名、方法名、类名、以及包名，`build.gradle` 内部指定了处理「Minecraft 源代码」所需要的映射表。相关配置位于 `minecraft {}` 块内：
-
-```groovy
-minecraft {
-    mappings channel: 'official', version: '1.17.1'
-    runs { /* ... */ }
-}
-```
-
-?> Forge MDK 默认指定的映射表未包含变量名的相关数据，而一个名叫「Parchment」的项目正好填补了这一空白。如欲使用「Parchment」映射表，请参阅 [Parchment 官方文档](https://github.com/ParchmentMC/Librarian/blob/dev/docs/FORGEGRADLE.md)。
-
 ## 资源文件
 
 Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资源文件，并几乎不加改动地复制到生成的模组文件中。
@@ -61,7 +48,7 @@ modId="forge" # 相关依赖的模组 ID
 mandatory=true # 相关依赖是否为必须
 versionRange="[39,)" # 相关依赖的版本号范围
 ordering="NONE" # 相关依赖和模组本体的加载顺序，也可以是 BEFORE 或 AFTER
-side="BOTH" # 相关依赖是否一定要在客户端或服务端出现，也可以是 CLIENT 或 SERVER
+side="BOTH" # 相关依赖是否一定要在玩家客户端或专用服务端出现，也可以是 CLIENT 或 SERVER
 ```
 
 !> 模组开发者必须通过 `mods.toml` 指定一个协议，否则模组将无法启动。基于 TeaCon 的举办理念，我们鼓励模组开发者采用一个自由或开源的授权协议。
@@ -87,7 +74,7 @@ side="BOTH" # 相关依赖是否一定要在客户端或服务端出现，也可
 
 !> 模组 ID 是模组的唯一标识符，也应当是所有和模组相关的资源的[命名空间](https://minecraft.fandom.com/zh/wiki/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4ID)：在管理资源时应当尽量使用模组 ID 作为命名空间。本篇指南所有新添加的资源均归属于 `xiaozhong` 命名空间。
 
-## 源代码
+## Java 源代码
 
 Forge MDK 默认从 `src/main/java` 检索 Java 源代码，将其编译并进行适当处理后封装到最终的模组文件中。
 
@@ -95,7 +82,7 @@ Forge MDK 默认从 `src/main/java` 检索 Java 源代码，将其编译并进�
 
 ### 模组主类
 
-通常情况下，所有 Forge 模组都需要在源代码中添加一个类作为模组主类。Forge MDK 默认内置了 `ExampleMod` 作为主类，实际模组开发时可将其修改为自己的主类，也可直接删去并自行创建主类。
+通常情况下，所有 Forge 模组都需要在源代码中添加一个类作为模组主类。Forge MDK 默认内置了 `ExampleMod` 作为主类，实际开发时可将其修改为自己的主类，也可自行删去另建主类。
 
 模组的主类需要使用 `@Mod` 注解标识，并在参数中声明模组 ID。以下是一个典型的主类：
 
@@ -105,10 +92,20 @@ package org.teacon.xiaozhong;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod("xiaozhong")
-public class Xiaozhong {}
+public class Xiaozhong {
+    public Xiaozhong() {}
+}
 ```
 
-## 事件
+## 客户端和服务端
+
+模组代码可能同时在两种不同类型的 Minecraft 下运行：一种是单人游玩或多人联机游玩时的玩家客户端，一种是开服时的专用服务端。Forge 使用 `Dist` 注解标记两种类型（分别是 `CLIENT` 和 `DEDICATED_SERVER`），并会将 `FMLEnvironment.dist` 标记为相应的值。
+
+一些模组代码只会在 Minecraft 玩家客户端运行——Minecraft 本体也是如此。因此开发过程中有时能看到一些类的上方有 `@OnlyIn(Dist.CLIENT)` 标记。这些类只存在于玩家客户端，试图在专用服务端加载这些类将极易导致游戏抛出 `ClassNotFoundException`，进而导致游戏崩溃。
+
+!> **在专用服务端加载标有 `@OnlyIn(Dist.CLIENT)` 的类是模组开发的常见错误**，因开发者绝大多数时间只在玩家客户端测试模组，故无论是新手还是老手均难以避免。有两种办法可以尽力规避此事：一方面，在开发模组时有意识地将所有引用了标有 `@OnlyIn(Dist.CLIENT)` 的代码隔离到特定的类中，并加以特殊标记（如类名包含 `Client` 或位于 `client` 子包下）；另一方面，在最终发布前使用 `runServer` 启动选项检查专用服务端在添加模组后是否会崩溃。
+
+## 事件系统
 
 模组的许多代码都是通过事件系统触发的。和大多数框架的事件系统一样，不同的事件归属于不同的事件总线。
 
@@ -119,7 +116,45 @@ Forge 的事件总线均为 `IEventBus` 接口的实例。模组开发者能够�
 
 ?> 区分一个事件属于何种总线可以通过判断是否实现了 `IModBusEvent` 接口确定：实现了 `IModBusEvent` 接口的事件经由模组总线触发，否则经由 Forge 总线触发。
 
-模组开发者可通过直接调用事件总线的 `addListener` 方法注册监听器，也可通过 `@Mod.EventBusSubscriber` 注解自动注册。以下是一个使用该注解自动注册监听器的例子：
+### 注册监听器
+
+模组开发者可通过直接调用事件总线的 `addListener` 方法注册监听器。以下为使用事件监听器注册玩家登录事件的例子：
+
+```java
+package org.teacon.xiaozhong;
+
+import net.minecraft.Util;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+
+@Mod("xiaozhong")
+public class Xiaozhong {
+    public Xiaozhong() {
+        // 通常在模组主类的构造方法注册事件监听器
+        MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
+        /*
+        // 如果只希望在玩家客户端注册事件，请检查 FMLEnvironment.dist 的值
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
+        }
+        */
+    }
+
+    public static class PlayerLoggedInHandler {
+        public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+            // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
+            var player = event.getPlayer();
+            player.sendMessage(new TextComponent("Welcome to xiaozhong!"), Util.NIL_UUID);
+        }
+    }
+}
+```
+
+模组开发者也可通过 `@Mod.EventBusSubscriber` 注解自动注册。以下是一个使用该注解的例子，与上面的例子等价：
 
 ```java
 package org.teacon.xiaozhong;
@@ -130,25 +165,54 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
-// 所有自动注册监听器的类均需使用该注解标识
-// bus 为对应的事件总线，Bus.FORGE 为 Forge 总线，Bus.MOD 为模组总线
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
-/*
-// 如果只希望在游戏客户端注册事件，请添加 value 参数
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-*/
-public class PlayerLoggedInHandler {
-    // 监听器需为 public static 方法，并使用 @SubscribeEvent 注解
-    // 监听器的方法名可自由选取，方法参数为对应的事件，在事件触发时作为参数传入
-    @SubscribeEvent
-    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
-        var text = new TextComponent("Welcome to xiaozhong!");
-        event.getPlayer().sendMessage(text, Util.NIL_UUID);
+@Mod("xiaozhong")
+public class Xiaozhong {
+    public Xiaozhong() {}
+
+    // 所有自动注册监听器的类均需使用该注解标识
+    // bus 为对应的事件总线，Bus.FORGE 为 Forge 总线，Bus.MOD 为模组总线
+    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+    /*
+    // 如果只希望在玩家客户端注册事件，请添加 value 参数
+    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+    */
+    public static class PlayerLoggedInHandler {
+        // 监听器需为 public static 方法，并使用 @SubscribeEvent 注解
+        // 监听器的方法名可自由选取，方法参数为对应的事件，在事件触发时作为参数传入
+        @SubscribeEvent
+        public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+            // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
+            var player = event.getPlayer();
+            player.sendMessage(new TextComponent("Welcome to xiaozhong!"), Util.NIL_UUID);
+        }
     }
 }
 ```
 
-?> 绝大多数场合下，模组开发者无需手动注册监听器，亦无需获取相应的 `IEventBus`。
+## 文本
 
+Minecraft 的所有用于展示的文本均为 `Component` 的实例。最常见的是 `TextComponent`。
+
+开发中可以搭配 `withStyle` 和 `append` 方法调整文本的样式：
+
+```java
+player.sendMessage(new TextComponent("Welcome to xiaozhong!"), Util.NIL_UUID);
+player.sendMessage(new TextComponent("Welcome to xiaozhong!").withStyle(ChatFormatting.GREEN), Util.NIL_UUID);
+player.sendMessage(new TextComponent("Welcome to ").append(new TextComponent("xiaozhong").withStyle(ChatFormatting.GREEN)).append("!"), Util.NIL_UUID);
+```
+
+![text-example](text-example.png)
+
+如果使用 `TextComponent`，则玩家无论选择了何种语言，看到的文字都是相同的。`TranslatableComponent` 可使文字在不同的语言下不同：
+
+```java
+var ironBars = new TranslatableComponent("block.minecraft.iron_bars");
+var ironIngot = new TranslatableComponent("item.minecraft.iron_ingot");
+player.sendMessage(new TextComponent("16 x ").append(ironBars).append(" <= 6 x ").append(ironIngot), Util.NIL_UUID);
+```
+
+![translation-example](translation-example.png)
+
+?> 如果使用 `TranslatableComponent`，则游戏会去寻找[语言文件](https://minecraft.fandom.com/zh/wiki/%E8%B5%84%E6%BA%90%E5%8C%85#.E8.AF.AD.E8.A8.80)中的翻译标识符并按照语言文件的规则翻译。如果翻译失败则游戏将直接显示翻译标识符本身。模组开发者也可以指定自己的语言文件，并放在 `[模组 ID]:[语言代码]` 亦即 `assets/[模组 ID]/lang/[语言代码].json` 处，常见的语言代码有 `en_us` 及 `zh_cn` 等。语言文件亦可使用 Data Generator 生成。
