@@ -191,7 +191,7 @@ public class Xiaozhong {
 }
 ```
 
-## 文本
+## 文本与国际化
 
 Minecraft 的所有用于展示的文本均为 `Component` 的实例。最常见的是 `TextComponent`。
 
@@ -216,3 +216,82 @@ player.sendMessage(new TextComponent("16 x ").append(ironBars).append(" <= 6 x "
 ![translation-example](translation-example.png)
 
 ?> 如果使用 `TranslatableComponent`，则游戏会去寻找[语言文件](https://minecraft.fandom.com/zh/wiki/%E8%B5%84%E6%BA%90%E5%8C%85#.E8.AF.AD.E8.A8.80)中的翻译标识符并按照语言文件的规则翻译。如果翻译失败则游戏将直接显示翻译标识符本身。模组开发者也可以指定自己的语言文件，并放在 `[模组 ID]:[语言代码]` 亦即 `assets/[模组 ID]/lang/[语言代码].json` 处，常见的语言代码有 `en_us` 及 `zh_cn` 等。语言文件亦可使用 Data Generator 生成。
+
+!> 我们鼓励自定义的翻译标识符包含模组 ID 本身（如 `chat.xiaozhong.welcome` 便要比 `chat.welcome` 来得更好），以避免和其他模组或 Minecraft 原版定义的翻译标识符冲突。
+
+## Data Generator
+
+Data Generator 是 Minecraft 原版提供的用于自动生成资源文件的机制。Forge 拓展了这一机制，以方便模组开发者从繁冗的 JSON 文件里解脱出来。
+
+模组开发者需要监听 `GatherDataEvent` 事件以添加自己的 `DataProvider`。在启动 Data Generator 后，该事件将会触发，并将自动生成的结果放入 `src/generated/resources` 中。
+
+Minecraft 原版便提供了很多不同的 `DataProvider` 实例，Forge 还对其进行了扩展：如对应方块模型的 `BlockStateProvider`，对应物品模型的 `ItemModelProvider`，对应语言文件的 `	LanguageProvider` 等。模组开发者需继承它们，并覆盖对应的方法。
+
+这里以语言文件的自动生成为例，演示 Data Generator 的相关代码：
+
+```java
+package org.teacon.xiaozhong;
+
+import net.minecraft.Util;
+import net.minecraft.data.DataGenerator;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.data.LanguageProvider;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+
+@Mod("xiaozhong")
+public class Xiaozhong {
+    public Xiaozhong() {
+        MinecraftForge.EVENT_BUS.addListener(Xiaozhong::onLoggedIn);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
+    }
+
+    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        var player = event.getPlayer();
+        // 发送一条 chat.xiaozhong.welcome 对应的消息
+        // Data Generator 生成了含有 chat.xiaozhong.welcome 的语言文件
+        player.sendMessage(new TranslatableComponent("chat.xiaozhong.welcome"), Util.NIL_UUID);
+    }
+
+    public static void onGatherData(GatherDataEvent event) {
+        // Data Generator 启动时，该方法便会调用，新添加的 DataProvider 也开始工作
+        // 从而在 src/generated/resources 下的 xiaozhong:en_us 和 xiaozhong:zh_cn 两处生成语言文件
+        var gen = event.getGenerator();
+        gen.addProvider(new EnglishLanguageProvider(gen));
+        gen.addProvider(new ChineseLanguageProvider(gen));
+    }
+
+    // 英文语言文件
+    public static class EnglishLanguageProvider extends LanguageProvider {
+        public EnglishLanguageProvider(DataGenerator gen) {
+            // 前三个参数分别是 Data Generator 本身，模组 ID，以及语言代码
+            // 语言代码对应语言文件的资源路径，此处为 xiaozhong:en_us
+            super(gen, "xiaozhong", "en_us");
+        }
+
+        @Override
+        protected void addTranslations() {
+            this.add("chat.xiaozhong.welcome", "Welcome to xiaozhong!");
+        }
+    }
+
+    // 中文语言文件
+    public static class ChineseLanguageProvider extends LanguageProvider {
+        public ChineseLanguageProvider(DataGenerator gen) {
+            // 前三个参数分别是 Data Generator 本身，模组 ID，以及语言代码
+            // 语言代码对应语言文件的资源路径，此处为 xiaozhong:zh_cn
+            super(gen, "xiaozhong", "zh_cn");
+        }
+
+        @Override
+        protected void addTranslations() {
+            this.add("chat.xiaozhong.welcome", "欢迎来到正山小种！");
+        }
+    }
+}
+```
+
+!> 在更新了 Data Generator 相关代码后，模组开发者需及时重新启动运行 Data Generator，以更新 `src/generated/resources` 下的资源。
