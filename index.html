@@ -14,6 +14,7 @@
     window.$docsify = {
       routerMode: 'history',
       loadSidebar: true,
+      loadFooter: true,
       subMaxLevel: 2,
       pagination: {
         previousText: '上一章',
@@ -21,13 +22,21 @@
         crossChapterText: true,
         crossChapter: true
       },
+      count: {
+        language: 'chinese',
+        margin: '-1.75em'
+      },
       name: '正山小种',
       repo: 'https://github.com/teaconmc/Xiaozhong'
     }
   </script>
   <!-- Docsify v4 -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-count@1/dist/countable.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2/dist/docsify-copy-code.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-pagination@2/dist/docsify-pagination.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/@alertbox/docsify-footer@1.0.0-0/dist/docsify-footer.min.js"></script>
+  <!-- Prism Language Highlighting -->
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
