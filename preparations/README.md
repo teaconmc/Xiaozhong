@@ -110,13 +110,13 @@ Gradle 是一个基于任务的项目管理系统。通过 Forge MDK 我们可�
 
 * `clean`：清理和 Forge MDK 有关的自动生成的部分文件。
 * `build`：生成模组文件（生成的文件可在 `build/libs` 找到，可用于发布）。
-* `genEclipseRuns`：生成针对 Eclipse 的 Minecraft 专用服务端 / 玩家客户端 / Data Generator 启动选项。
-* `genIntellijRuns`：生成针对 IntelliJ IDEA 的 Minecraft 专用服务端 / 玩家客户端  / Data Generator 启动选项。
-* `genVSCodeRuns`：生成针对 Visual Studio Code 的 Minecraft 专用服务端 / 玩家客户端  / Data Generator 启动选项。
+* `genEclipseRuns`：生成针对 Eclipse 的 `runClient` / `runServer` / `runData` 启动选项。
+* `genIntellijRuns`：生成针对 IntelliJ IDEA 的 `runClient` / `runServer` / `runData` 启动选项。
+* `genVSCodeRuns`：生成针对 Visual Studio Code 的 `runClient` / `runServer` / `runData` 启动选项。
 
-?> Data Generator 是 Minecraft 原版的一种机制，可用于自动生成资源文件。我们稍后会用到这一机制。
+?> 启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，而 `runData` 用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](../concepts/?id=data-generator)会用到 Data Generator 这一机制。
 
 常见的开发工具均深度集成了 Gradle 的支持（或有对应的插件），无论是执行 Gradle 任务还是启动乃至调试游戏均可在开发工具内部进行。
 
-?> IntelliJ IDEA 用户可打开 Gradle 侧边栏，并在 `Tasks` 下找到上述任务并双击执行。在 IntelliJ IDEA 执行 `genIntellijRuns` 任务后，右上角会出现三个启动选项，分别是 `runClient`（启动专用服务端）、`runServer`（启动玩家客户端）、和 `runData`（启动 Data Generator）。<br><br>![idea-run-example.png](idea-run-example.png)
+?> IntelliJ IDEA 用户可打开 Gradle 侧边栏，并在 `Tasks` 下找到上述任务并双击执行。在 IntelliJ IDEA 执行 `genIntellijRuns` 任务后，右上角便会出现三个启动选项。<br><br>![idea-run-example.png](idea-run-example.png)
 

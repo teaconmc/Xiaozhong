@@ -223,9 +223,9 @@ player.sendMessage(new TextComponent("16 x ").append(ironBars).append(" <= 6 x "
 
 Data Generator 是 Minecraft 原版提供的用于自动生成资源文件的机制。Forge 拓展了这一机制，以方便模组开发者从繁冗的 JSON 文件里解脱出来。
 
-模组开发者需要监听 `GatherDataEvent` 事件，并在监听器中添加自己的 `DataProvider`。在启动 Data Generator 后，该事件将会触发，并将自动生成的结果放入 `src/generated/resources` 中。
+模组开发者需监听 `GatherDataEvent` 事件，并在监听器中添加自己的 `DataProvider`。该事件将在启动 Data Generator 后触发，并将自动生成的结果放入 `src/generated/resources` 中。
 
-Minecraft 原版便提供了很多不同的 `DataProvider` 实例，Forge 还对其进行了扩展：如对应方块模型的 `BlockStateProvider`，对应物品模型的 `ItemModelProvider`，对应语言文件的 `	LanguageProvider` 等。模组开发者需继承它们，并覆盖对应的方法。
+Minecraft 原版便提供了很多不同的 `DataProvider` 实例，Forge 还对其进行了扩展：如对应方块状态及模型的 `BlockStateProvider`，对应物品模型的 `ItemModelProvider`，对应语言文件的 `LanguageProvider` 等。模组开发者需继承它们，并覆盖对应的方法。
 
 这里以语言文件的自动生成为例，演示 Data Generator 的相关代码：
 
@@ -294,4 +294,4 @@ public class Xiaozhong {
 }
 ```
 
-!> 在更新了 Data Generator 相关代码后，模组开发者需及时通过启动选项重新运行 Data Generator，以更新 `src/generated/resources` 下的资源。
+!> 在更新了 Data Generator 相关代码后，模组开发者需及时通过 `runData` 重新运行 Data Generator，以更新 `src/generated/resources` 下的资源。
