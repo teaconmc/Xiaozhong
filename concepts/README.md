@@ -70,7 +70,7 @@ side="BOTH" # 相关依赖是否一定要在玩家客户端或专用服务端出
 | 数据包   | 配方     | `recipes/`     | `.json`  | 路径：`minecraft:bread`<br />文件：`data/minecraft/recipes/bread.json` |
 | 数据包   | 战利品表 | `loot_tables/` | `.json`  | 路径：`minecraft:blocks/ice`<br />文件：`data/minecraft/loot_tables/blocks/ice.json` |
 
-资源路径在源代码中为 `ResourceLocation`，如 `new ResourceLocation("foo", "bar")` 即代表 `foo:bar` 这一资源路径。
+资源路径在源代码中为 `ResourceLocation`，如 `new ResourceLocation("foo", "bar")` 即代表 `foo:bar` 这一资源路径。命名空间如为 `minecraft` 则可省略（`new ResourceLocation("bar")` 代表 `minecraft:bar`）。
 
 !> 模组 ID 是模组的唯一标识符，也应当是所有和模组相关的资源的[命名空间](https://minecraft.fandom.com/zh/wiki/%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4ID)：在管理资源时应当尽量使用模组 ID 作为命名空间。本篇指南所有新添加的资源均归属于 `xiaozhong` 命名空间。
 
