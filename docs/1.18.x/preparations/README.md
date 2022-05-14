@@ -144,7 +144,7 @@ Gradle 是一个基于任务的项目管理系统。通过 Forge MDK 我们可�
 
 :::info
 
-启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，而 `runData` 用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](../concepts/?id=data-generator)会用到 Data Generator 这一机制。
+启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，而 `runData` 用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](../concepts/#data-generator)会用到 Data Generator 这一机制。
 
 :::
 
