@@ -26,7 +26,9 @@ const config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/teaconmc/Xiaozhong',
+          editUrl({ docPath }) {
+            return 'https://github.com/teaconmc/Xiaozhong/blob/1.18-forge/docs/' + docPath
+          }
         },
       }),
     ],
