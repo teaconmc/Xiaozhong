@@ -6,7 +6,7 @@ Minecraft 使用名为方块实体（Block Entity）的机制来实现一些一�
 - 实现像熔炉那样持续不断地行为
 - 拥有奇妙的渲染特效
 
-## `BlockEntity` 和 `BlockEntityType<?>`
+## 方块实体类型
 
 Minecraft 中所有的方块实体均属于 `BlockEntity` 类型。我们首先需要创建我们自己的 `BlockEntity` 类。
 
@@ -55,9 +55,9 @@ public static final class MyMachineEntity extends BlockEntity {
 }
 ```
 
-## `BlockEntityTicker<T extends BlockEntity>`
+## 方块实体刻
 
-默认情况下，方块实体并不具备跟随游戏刻刷新的能力，若要获得此能力，方块实体所在的那个方块需要明确声明一个所谓的「Ticker」。
+默认情况下，方块实体并不具备跟随游戏刻刷新（亦即方块实体刻）的能力，若要获得此能力，方块实体所在的那个方块需要明确声明一个所谓的「Ticker」，亦即 `BlockEntityTicker<?>`。
 
 此外，你可以根据 `Level` 是在逻辑服务器上还是逻辑客户端上来返回不同的 Ticker。通常我们在客户端不需要特别的逻辑，因此我们会在 `level.isClientSide()` 返回 `true` 时，令 `getTicker` 返回 `null`。
 
