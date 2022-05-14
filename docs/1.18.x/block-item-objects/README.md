@@ -17,7 +17,11 @@ var block = new Block(BlockBehaviour.Properties.of(Material.STONE).requiresCorre
 var blockItem = new BlockItem(block, new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS));
 ```
 
-?> 可以通过查看 `Blocks` 及 `Items` 类（注意类名最后的 `s`）了解原版方块及物品的相关属性。
+:::tip
+
+可以通过查看 `Blocks` 及 `Items` 类（注意类名最后的 `s`）了解原版方块及物品的相关属性。
+
+:::
 
 ## 注册系统
 
@@ -38,7 +42,11 @@ public static final String SULFUR_DUST_ID = "sulfur_dust";
 public static final RegistryObject<Item> SULFUR_DUST_ITEM = ITEMS.register(SULFUR_DUST_ID, () -> new Item(new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
 ```
 
-?> `RegistryObject` 储存着游戏元素的实例——该实例可通过 `get` 方法获得。建议将物品和方块对应的 `RegistryObject` 以静态字段的方式声明。
+:::info
+
+`RegistryObject` 储存着游戏元素的实例——该实例可通过 `get` 方法获得。建议将物品和方块对应的 `RegistryObject` 以静态字段的方式声明。
+
+:::
 
 `DeferredRegister` 的另一个 `register` 方法需传入 `IEventBus`，用于完成具体的注册（通常在主类的构造方法调用）：
 
@@ -47,7 +55,11 @@ public static final RegistryObject<Item> SULFUR_DUST_ITEM = ITEMS.register(SULFU
 ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
 ```
 
-?> 将 `IEventBus` 传入 `register` 方法本质上是为注册事件添加监听器——相应的注册事件触发后整个注册流程才会完成。
+:::info
+
+将 `IEventBus` 传入 `register` 方法本质上是为注册事件添加监听器——相应的注册事件触发后整个注册流程才会完成。
+
+:::
 
 以下演示了仅包含方块和物品本身的最基础的注册流程——没有相应的语言文件，没有模型，什么都没有：
 
@@ -94,7 +106,11 @@ public class Xiaozhong {
 }
 ```
 
-?> 在游戏中使用 `/give @s [模组 ID]:[物品 ID]` 即可拿到物品，如使用 `/give @s xiaozhong:sulfur_dust` 和 `/give @s xiaozhong:sulfur_block` 等。
+:::tip
+
+在游戏中使用 `/give @s [模组 ID]:[物品 ID]` 即可拿到物品，如使用 `/give @s xiaozhong:sulfur_dust` 和 `/give @s xiaozhong:sulfur_block` 等。
+
+:::
 
 ## 语言文件
 
@@ -187,7 +203,11 @@ public class Xiaozhong {
 
 幸运的是，无论是模型文件还是方块状态文件均可使用 Data Generator 生成。唯一不能生成的只有纹理——模组开发者需要把纹理放到 `src/main/resources` 下相应的位置。
 
-?> 对于常用的方块模型，Data Generator 提供了非常多的预设。当然，模组开发者也可以制作自己的丰富多彩的模型。对 Minecraft 而言，常见的模型制作工具有 Blockbench 等。Blockbench 可在 https://www.blockbench.net/ 下载。
+:::tip
+
+对于常用的方块模型，Data Generator 提供了非常多的预设。当然，模组开发者也可以制作自己的丰富多彩的模型。对 Minecraft 而言，常见的模型制作工具有 Blockbench 等。Blockbench 可在 https://www.blockbench.net/ 下载。
+
+:::
 
 此处展示如何生成最简单的方块模型及物品模型：
 
@@ -321,7 +341,17 @@ public class Xiaozhong {
 
 ![sulfur-dust-texture](sulfur-dust-texture.png) ![sulfur-block-texture](sulfur-block-texture.png)
 
-?> 为保证不同放缩比例下玩家的游戏体验，建议使用长宽均为 16 的像素风格纹理。纹理既可在 Blockbench 中直接修改，也可使用 GIMP（GNU Image Manipulation Program）等专业图像处理软件处理。GIMP 可在 <https://www.gimp.org/> 下载。
+:::info
+
+为保证不同放缩比例下玩家的游戏体验，建议使用长宽均为 16 的像素风格纹理。
+
+:::
+
+:::tip
+
+纹理既可在 Blockbench 中直接修改，也可使用 GIMP（GNU Image Manipulation Program）等专业图像处理软件处理。GIMP 可在 <https://www.gimp.org/> 下载。
+
+:::
 
 以下是游戏内效果：
 

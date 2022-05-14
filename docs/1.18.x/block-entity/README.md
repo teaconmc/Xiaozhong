@@ -37,7 +37,11 @@ public MyMachineEntity(BlockPos worldPosition, BlockState blockState) {
 }
 ```
 
-?> 这个案例也展示了 `DeferredRegistry` 的一个优势：可以方便开发者打破这种出现循环依赖的情况。
+:::info
+
+这个案例也展示了 `DeferredRegistry` 的一个优势：可以方便开发者打破这种出现循环依赖的情况。
+
+:::
 
 `BlockEntity` 此时像是一个纯粹的数据容器：我们在我们的 `MyMachineEntity` 中可以随意添加新的成员字段，并视情况决定是否创建对应的访问器。
 

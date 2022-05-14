@@ -89,7 +89,11 @@ public static void onBiomeLoading(BiomeLoadingEvent event) {
 }
 ```
 
-!> `BiomeLoadingEvent` 发布在 `MinecraftForge.FORGE` 事件总线上，请在订阅此事件时多加留意，不要选错事件发布总线。
+:::caution
+
+`BiomeLoadingEvent` 发布在 `MinecraftForge.FORGE` 事件总线上，请在订阅此事件时多加留意，不要选错事件发布总线。
+
+:::
 
 以下演示了上述整个注册矿物生成的流程：
 
