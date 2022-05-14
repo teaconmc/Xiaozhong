@@ -6,7 +6,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: '正山小种',
-  tagline: 'Dinosaurs are cool',
+  tagline: '一篇以尽可能简洁的篇幅带领 Minecraft 玩家入门的 Forge 模组开发指南',
   url: 'https://www.teacon.cn/',
 
   baseUrl: '/xiaozhong/',
@@ -38,7 +38,15 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: '正山小种',
+        title: '正山小种 - Forge 模组开发指南',
+        items: [
+          {
+            type: 'doc',
+            position: 'right',
+            docId: '1.18.x/README',
+            label: '1.18.x',
+          },
+        ],
       },
       footer: {
         style: 'dark',
