@@ -9,6 +9,7 @@ const config = {
   tagline: '一篇以尽可能简洁的篇幅带领 Minecraft 玩家入门的 Forge 模组开发指南',
   url: 'https://www.teacon.cn/',
 
+  trailingSlash: false,
   baseUrl: '/xiaozhong/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
