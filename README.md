@@ -8,12 +8,7 @@
 
 ## 本地预览
 
-本篇指南基于 Docsify，因此仅需在命令行输入以下两个命令即可启用本地预览：
-
-```bash
-npm install -g docsify-cli
-docsify serve -o
-```
+本篇指南基于 Docusaurus，因此仅需在命令行输入 `npm start` 命令即可启用本地预览。
 
 ## 授权协议
 
@@ -36,4 +31,3 @@ TeaCon 执行委员会保留对正山小种中所有文本的法定权利，唯�
 
   0. You just DO WHAT THE FUCK YOU WANT TO.
 ```
-

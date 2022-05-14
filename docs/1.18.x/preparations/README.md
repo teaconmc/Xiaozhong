@@ -118,5 +118,5 @@ Gradle 是一个基于任务的项目管理系统。通过 Forge MDK 我们可�
 
 常见的开发工具均深度集成了 Gradle 的支持（或有对应的插件），无论是执行 Gradle 任务还是启动乃至调试游戏均可在开发工具内部进行。
 
-?> IntelliJ IDEA 用户可打开 Gradle 侧边栏，并在 `Tasks` 下找到上述任务并双击执行。在 IntelliJ IDEA 执行 `genIntellijRuns` 任务后，右上角便会出现三个启动选项。<br><br>![idea-run-example.png](idea-run-example.png)
+?> IntelliJ IDEA 用户可打开 Gradle 侧边栏，并在 `Tasks` 下找到上述任务并双击执行。在 IntelliJ IDEA 执行 `genIntellijRuns` 任务后，右上角便会出现三个启动选项。<br/><br/>![idea-run-example.png](idea-run-example.png)
 
