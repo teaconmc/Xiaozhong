@@ -14,8 +14,8 @@ const config = {
   onBrokenMarkdownLinks: 'warn',
 
   i18n: {
-    defaultLocale: 'zh-Hans',
-    locales: ['zh-Hans'],
+    defaultLocale: 'zh',
+    locales: ['zh'],
   },
 
   presets: [
@@ -32,6 +32,19 @@ const config = {
         },
       }),
     ],
+  ],
+
+  themes: [
+    [
+      "@easyops-cn/docusaurus-search-local",
+      {
+        hashed: true,
+        language: ['en', 'zh'],
+        docsRouteBasePath: '/',
+        explicitSearchResultPath: true,
+        highlightSearchTermsOnTargetPage: true,
+      }
+    ]
   ],
 
   themeConfig:
