@@ -1,0 +1,8 @@
+:root {
+  --ifm-list-item-margin: 0;
+ --docusaurus-highlighted-code-line-bg: rgb(0, 0, 0, 0.1);
+}
+
+:root[data-theme='dark'] {
+    --docusaurus-highlighted-code-line-bg: rgb(66, 66, 66, 0.35);
+}

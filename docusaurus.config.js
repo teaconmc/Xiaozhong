@@ -31,6 +31,9 @@ const config = {
             return 'https://github.com/teaconmc/Xiaozhong/blob/1.18-forge/docs/' + docPath
           }
         },
+        theme: {
+          customCss: [require.resolve('./custom.css')],
+        },
       }),
     ],
   ],

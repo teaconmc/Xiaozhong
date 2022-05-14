@@ -1,3 +1,8 @@
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import CodeBlock from '@theme/CodeBlock'
+import BuildGradle from '!!raw-loader!./build.gradle'
+
 # 准备工作
 
 除去必要的硬件条件外，读者需要从 <https://files.minecraftforge.net> 下载模组开发套件（Mod Development Kit，简称 MDK）。
@@ -34,15 +39,27 @@ Forge MDK 的配置文件是 `build.gradle`。对 Gradle 熟悉的读者应该�
 
 主要需要修改的地方有三处。需要修改的第一处在 `build.gradle` 相对靠前的位置，和模组的发布有关：
 
-```groovy
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```groovy title="build.gradle"
 version = '1.0.0' // 模组版本号
 group = 'org.teaconmc' // 模组的 Maven 组名，通常和包名相同
 archivesBaseName = 'Xiaozhong' // 最后生成的模组文件名前缀（这里将会生成 Xiaozhong-1.0.0.jar）
 ```
 
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="groovy" metastring="{14-16}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
+</TabItem>
+</Tabs>
+
 需要修改的第二处在 `minecraft {}` 块下的 `run {}` 块内，约定了启动选项和所使用的[映射表](https://minecraft.fandom.com/zh/wiki/%E6%B7%B7%E6%B7%86%E6%98%A0%E5%B0%84%E8%A1%A8)：
 
-```groovy
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```groovy title="build.gradle"
 minecraft {
     // MDK 所使用的映射表，默认为 1.18.1 的 official 即官方映射表，由微软官方提供
     mappings channel: 'official', version: '1.18.1'
@@ -86,6 +103,12 @@ minecraft {
 }
 ```
 
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="groovy" metastring="{21-57}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
+</TabItem>
+</Tabs>
+
 :::info
 
 Minecraft 官方对源代码编译后进行了混淆，因此为还原方法名、字段名、类名、以及包名以方便模组开发，Forge MDK 需要参照一个映射表。官方映射表未包含变量名的相关数据，而一个名叫「Parchment」的项目正好填补了这一空白。如欲使用「Parchment」映射表，请参阅 [Parchment 官方文档](https://github.com/ParchmentMC/Librarian/blob/dev/docs/FORGEGRADLE.md)。
@@ -94,7 +117,10 @@ Minecraft 官方对源代码编译后进行了混淆，因此为还原方法名�
 
 需要修改的第三处在 `jar {}` 块内，约定了 JAR 的版本信息：
 
-```groovy
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```groovy title="build.gradle"
 jar {
     manifest {
         attributes([
@@ -111,6 +137,12 @@ jar {
     }
 }
 ```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="groovy" metastring="{69-81}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
+</TabItem>
+</Tabs>
 
 :::info
 
@@ -144,7 +176,7 @@ Gradle 是一个基于任务的项目管理系统。通过 Forge MDK 我们可�
 
 :::info
 
-启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，而 `runData` 用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](../concepts/#data-generator)会用到 Data Generator 这一机制。
+启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，而 `runData` 用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](./concepts#data-generator)会用到 Data Generator 这一机制。
 
 :::
 
