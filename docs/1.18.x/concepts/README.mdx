@@ -1,3 +1,13 @@
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import CodeBlock from '@theme/CodeBlock'
+import PackMCMeta from '!!raw-loader!./pack.mcmeta'
+import ModsToml from '!!raw-loader!./mods.toml'
+import EmptyXiaozhong from '!!raw-loader!./EmptyXiaozhong.java'
+import ManualListenerXiaozhong from '!!raw-loader!./ManualListenerXiaozhong.java'
+import AutomaticListenerXiaozhong from '!!raw-loader!./AutomaticListenerXiaozhong.java'
+import Xiaozhong from '!!raw-loader!./Xiaozhong.java'
+
 # 基本概念
 
 以下是本篇指南所用到的基本概念。对部分 Minecraft 模组玩家和资源包 / 数据包创作者来说，一些概念可能已经相对熟悉了。
@@ -18,14 +28,7 @@ Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资
 
 `pack.mcmeta` 是数据包和资源包共用的声明文件，为 [JSON 格式](https://www.json.org/json-zh.html)。以下为 `pack.mcmeta` 的一个示例：
 
-```json
-{
-  "pack": {
-    "pack_format": 8,
-    "description": "Xiaozhong mod resources"
-  }
-}
-```
+<CodeBlock language="json" title="pack.mcmeta" showLineNumbers>{PackMCMeta}</CodeBlock>
 
 :::tip
 
@@ -39,25 +42,7 @@ Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资
 
 Forge MDK 默认提供的 `mods.toml` 以注释的形式为其提供了详尽的解释。以下为 `mods.toml` 的一个示例：
 
-```toml
-modLoader="javafml" # 模组所使用的加载器，此处固定
-loaderVersion="[39,)" # 加载器版本号，通常和 Forge 的大版本号有关
-license="All rights reserved" # 模组所采用的授权协议
-
-[[mods]] # 模组本体信息
-modId="xiaozhong" # 模组 ID
-version="${file.jarVersion}" # 模组的版本号，此处固定
-authors="TeaConMC" # 模组的作者，可在此填写自己的常用名称
-displayName="Xiaozhong" # 模组名称，通常和 build.gradle 所写相同
-description="The example mod for xiaozhong" # 模组的相关介绍，可以多行
-
-[[dependencies.xiaozhong]] # 模组的相关依赖，通常会写上对 Forge 版本的依赖
-modId="forge" # 相关依赖的模组 ID
-mandatory=true # 相关依赖是否为必须
-versionRange="[39,)" # 相关依赖的版本号范围
-ordering="NONE" # 相关依赖和模组本体的加载顺序，也可以是 BEFORE 或 AFTER
-side="BOTH" # 相关依赖是否一定要在玩家客户端或专用服务端出现，也可以是 CLIENT 或 SERVER
-```
+<CodeBlock language="toml" title="mods.toml" showLineNumbers>{ModsToml}</CodeBlock>
 
 :::caution
 
@@ -110,16 +95,7 @@ Forge MDK 默认从 `src/main/java` 检索 Java 源代码，将其编译并进�
 
 模组的主类需要使用 `@Mod` 注解标识，并在参数中声明模组 ID。以下是一个典型的主类：
 
-```java
-package org.teacon.xiaozhong;
-
-import net.minecraftforge.fml.common.Mod;
-
-@Mod("xiaozhong")
-public class Xiaozhong {
-    public Xiaozhong() {}
-}
-```
+<CodeBlock language="java" title="Xiaozhong.java" showLineNumbers>{EmptyXiaozhong}</CodeBlock>
 
 ## 客户端和服务端
 
@@ -152,76 +128,63 @@ Forge 的事件总线均为 `IEventBus` 接口的实例。模组开发者能够�
 
 模组开发者可通过直接调用事件总线的 `addListener` 方法注册监听器。以下为使用事件监听器注册玩家登录事件的例子：
 
-```java
-package org.teacon.xiaozhong;
+<Tabs>
+<TabItem value="core" label="核心代码">
 
-import net.minecraft.Util;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+```java title="Xiaozhong.java"
+// 通常在模组主类的构造方法注册事件监听器
+MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
+/*
+// 如果只希望在玩家客户端注册事件，请检查 FMLEnvironment.dist 的值
+if (FMLEnvironment.dist == Dist.CLIENT) {
+    MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
+}
+*/
 
-@Mod("xiaozhong")
-public class Xiaozhong {
-    public Xiaozhong() {
-        // 通常在模组主类的构造方法注册事件监听器
-        MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
-        /*
-        // 如果只希望在玩家客户端注册事件，请检查 FMLEnvironment.dist 的值
-        if (FMLEnvironment.dist == Dist.CLIENT) {
-            MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
-        }
-        */
-    }
-
-    public static class PlayerLoggedInHandler {
-        public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-            // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
-            var player = event.getPlayer();
-            player.sendMessage(new TextComponent("Welcome to xiaozhong!"), Util.NIL_UUID);
-        }
+public static class PlayerLoggedInHandler {
+    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
+        var player = event.getPlayer();
+        player.sendMessage(new TextComponent("Welcome to xiaozhong!"), Util.NIL_UUID);
     }
 }
 ```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{14,17-22}" title="Xiaozhong.java" showLineNumbers>{ManualListenerXiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
 
 模组开发者也可通过 `@Mod.EventBusSubscriber` 注解自动注册。以下是一个使用该注解的例子，与上面的例子等价：
 
-```java
-package org.teacon.xiaozhong;
+<Tabs>
+<TabItem value="core" label="核心代码">
 
-import net.minecraft.Util;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-
-@Mod("xiaozhong")
-public class Xiaozhong {
-    public Xiaozhong() {}
-
-    // 所有自动注册监听器的类均需使用该注解标识
-    // bus 为对应的事件总线，Bus.FORGE 为 Forge 总线，Bus.MOD 为模组总线
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
-    /*
-    // 如果只希望在玩家客户端注册事件，请添加 value 参数
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-    */
-    public static class PlayerLoggedInHandler {
-        // 监听器需为 public static 方法，并使用 @SubscribeEvent 注解
-        // 监听器的方法名可自由选取，方法参数为对应的事件，在事件触发时作为参数传入
-        @SubscribeEvent
-        public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-            // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
-            var player = event.getPlayer();
-            player.sendMessage(new TextComponent("Welcome to xiaozhong!"), Util.NIL_UUID);
-        }
+```java title="Xiaozhong.java"
+// 为监听器的外部类添加 @Mod.EventBusSubscriber 注解
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
+/*
+// 如果只希望在玩家客户端注册事件，请添加 value 参数
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+*/
+public static class PlayerLoggedInHandler {
+    // 监听器需为 public static 方法，并使用 @SubscribeEvent 注解
+    // 监听器的方法名可自由选取，方法参数为对应的事件，在事件触发时作为参数传入
+    @SubscribeEvent
+    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
+        var player = event.getPlayer();
+        player.sendMessage(new TextComponent("Welcome to xiaozhong!"), Util.NIL_UUID);
     }
 }
 ```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{15-22}" title="Xiaozhong.java" showLineNumbers>{AutomaticListenerXiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
 
 ## 文本与国际化
 
@@ -269,70 +232,63 @@ Minecraft 原版便提供了很多不同的 `DataProvider` 实例，Forge 还对
 
 这里以语言文件的自动生成为例，演示 Data Generator 的相关代码：
 
-```java
-package org.teacon.xiaozhong;
+<Tabs>
+<TabItem value="core" label="核心代码">
 
-import net.minecraft.Util;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.data.LanguageProvider;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+```java title="Xiaozhong.java"
+// 添加监听器
+MinecraftForge.EVENT_BUS.addListener(Xiaozhong::onLoggedIn);
+FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
 
-@Mod("xiaozhong")
-public class Xiaozhong {
-    public Xiaozhong() {
-        MinecraftForge.EVENT_BUS.addListener(Xiaozhong::onLoggedIn);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
+public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+    var player = event.getPlayer();
+    // 发送一条 chat.xiaozhong.welcome 对应的消息
+    // Data Generator 生成了含有 chat.xiaozhong.welcome 的语言文件
+    player.sendMessage(new TranslatableComponent("chat.xiaozhong.welcome"), Util.NIL_UUID);
+}
+
+public static void onGatherData(GatherDataEvent event) {
+    // Data Generator 启动时，该方法便会调用，新添加的 DataProvider 也开始工作
+    // 从而在 src/generated/resources 下的 xiaozhong:en_us 和 xiaozhong:zh_cn 两处生成语言文件
+    var gen = event.getGenerator();
+    gen.addProvider(new EnglishLanguageProvider(gen));
+    gen.addProvider(new ChineseLanguageProvider(gen));
+}
+
+// 英文语言文件
+public static class EnglishLanguageProvider extends LanguageProvider {
+    public EnglishLanguageProvider(DataGenerator gen) {
+        // 前三个参数分别是 Data Generator 本身，模组 ID，以及语言代码
+        // 语言代码对应语言文件的资源路径，此处为 xiaozhong:en_us
+        super(gen, "xiaozhong", "en_us");
     }
 
-    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        var player = event.getPlayer();
-        // 发送一条 chat.xiaozhong.welcome 对应的消息
-        // Data Generator 生成了含有 chat.xiaozhong.welcome 的语言文件
-        player.sendMessage(new TranslatableComponent("chat.xiaozhong.welcome"), Util.NIL_UUID);
+    @Override
+    protected void addTranslations() {
+        this.add("chat.xiaozhong.welcome", "Welcome to xiaozhong!");
+    }
+}
+
+// 中文语言文件
+public static class ChineseLanguageProvider extends LanguageProvider {
+    public ChineseLanguageProvider(DataGenerator gen) {
+        // 前三个参数分别是 Data Generator 本身，模组 ID，以及语言代码
+        // 语言代码对应语言文件的资源路径，此处为 xiaozhong:zh_cn
+        super(gen, "xiaozhong", "zh_cn");
     }
 
-    public static void onGatherData(GatherDataEvent event) {
-        // Data Generator 启动时，该方法便会调用，新添加的 DataProvider 也开始工作
-        // 从而在 src/generated/resources 下的 xiaozhong:en_us 和 xiaozhong:zh_cn 两处生成语言文件
-        var gen = event.getGenerator();
-        gen.addProvider(new EnglishLanguageProvider(gen));
-        gen.addProvider(new ChineseLanguageProvider(gen));
-    }
-
-    // 英文语言文件
-    public static class EnglishLanguageProvider extends LanguageProvider {
-        public EnglishLanguageProvider(DataGenerator gen) {
-            // 前三个参数分别是 Data Generator 本身，模组 ID，以及语言代码
-            // 语言代码对应语言文件的资源路径，此处为 xiaozhong:en_us
-            super(gen, "xiaozhong", "en_us");
-        }
-
-        @Override
-        protected void addTranslations() {
-            this.add("chat.xiaozhong.welcome", "Welcome to xiaozhong!");
-        }
-    }
-
-    // 中文语言文件
-    public static class ChineseLanguageProvider extends LanguageProvider {
-        public ChineseLanguageProvider(DataGenerator gen) {
-            // 前三个参数分别是 Data Generator 本身，模组 ID，以及语言代码
-            // 语言代码对应语言文件的资源路径，此处为 xiaozhong:zh_cn
-            super(gen, "xiaozhong", "zh_cn");
-        }
-
-        @Override
-        protected void addTranslations() {
-            this.add("chat.xiaozhong.welcome", "欢迎来到正山小种！");
-        }
+    @Override
+    protected void addTranslations() {
+        this.add("chat.xiaozhong.welcome", "欢迎来到正山小种！");
     }
 }
 ```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{16-17,20-23,25-29,31-40,42-51}" title="Xiaozhong.java" showLineNumbers>{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
 
 :::caution
 
