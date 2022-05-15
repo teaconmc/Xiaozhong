@@ -1,8 +1,13 @@
 :root {
+  text-align: justify;
   --ifm-list-item-margin: 0;
- --docusaurus-highlighted-code-line-bg: rgb(0, 0, 0, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgb(0, 0, 0, 0.1);
 }
 
 :root[data-theme='dark'] {
-    --docusaurus-highlighted-code-line-bg: rgb(66, 66, 66, 0.35);
+  --docusaurus-highlighted-code-line-bg: rgb(66, 66, 66, 0.35);
+}
+
+:root code {
+  word-break: break-all;
 }
