@@ -28,7 +28,7 @@ Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资
 
 `pack.mcmeta` 是数据包和资源包共用的声明文件，为 [JSON 格式](https://www.json.org/json-zh.html)。以下为 `pack.mcmeta` 的一个示例：
 
-<CodeBlock language="json" title="pack.mcmeta" showLineNumbers>{PackMCMeta}</CodeBlock>
+<CodeBlock language="json" title="src/main/resources/pack.mcmeta" showLineNumbers>{PackMCMeta}</CodeBlock>
 
 :::tip
 
@@ -42,7 +42,7 @@ Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资
 
 Forge MDK 默认提供的 `mods.toml` 以注释的形式为其提供了详尽的解释。以下为 `mods.toml` 的一个示例：
 
-<CodeBlock language="toml" title="mods.toml" showLineNumbers>{ModsToml}</CodeBlock>
+<CodeBlock language="toml" title="src/main/resources/META-INF/mods.toml" showLineNumbers>{ModsToml}</CodeBlock>
 
 :::caution
 
@@ -95,7 +95,7 @@ Forge MDK 默认从 `src/main/java` 检索 Java 源代码，将其编译并进�
 
 模组的主类需要使用 `@Mod` 注解标识，并在参数中声明模组 ID。以下是一个典型的主类：
 
-<CodeBlock language="java" title="Xiaozhong.java" showLineNumbers>{EmptyXiaozhong}</CodeBlock>
+<CodeBlock language="java" title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java" showLineNumbers>{EmptyXiaozhong}</CodeBlock>
 
 ## 客户端和服务端
 
@@ -131,7 +131,7 @@ Forge 的事件总线均为 `IEventBus` 接口的实例。模组开发者能够�
 <Tabs>
 <TabItem value="core" label="核心代码">
 
-```java title="Xiaozhong.java"
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 通常在模组主类的构造方法注册事件监听器
 MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
 /*
@@ -152,7 +152,8 @@ public static class PlayerLoggedInHandler {
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{14,17-22}" title="Xiaozhong.java" showLineNumbers>{ManualListenerXiaozhong}</CodeBlock>
+    <CodeBlock language="java" metastring="{14,17-22}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{ManualListenerXiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
 
@@ -161,7 +162,7 @@ public static class PlayerLoggedInHandler {
 <Tabs>
 <TabItem value="core" label="核心代码">
 
-```java title="Xiaozhong.java"
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 为监听器的外部类添加 @Mod.EventBusSubscriber 注解
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 /*
@@ -182,7 +183,8 @@ public static class PlayerLoggedInHandler {
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{15-22}" title="Xiaozhong.java" showLineNumbers>{AutomaticListenerXiaozhong}</CodeBlock>
+    <CodeBlock language="java" metastring="{15-22}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{AutomaticListenerXiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
 
@@ -235,7 +237,7 @@ Minecraft 原版便提供了很多不同的 `DataProvider` 实例，Forge 还对
 <Tabs>
 <TabItem value="core" label="核心代码">
 
-```java title="Xiaozhong.java"
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 添加监听器
 MinecraftForge.EVENT_BUS.addListener(Xiaozhong::onLoggedIn);
 FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
@@ -286,7 +288,8 @@ public static class ChineseLanguageProvider extends LanguageProvider {
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{16-17,20-23,25-29,31-40,42-51}" title="Xiaozhong.java" showLineNumbers>{Xiaozhong}</CodeBlock>
+    <CodeBlock language="java" metastring="{16-17,20-23,25-29,31-40,42-51}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
 
