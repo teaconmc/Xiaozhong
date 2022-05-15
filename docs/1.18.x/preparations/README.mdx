@@ -13,7 +13,7 @@ import BuildGradle from '!!raw-loader!./build.gradle'
 
 :::
 
-如果你下载的是形如 `forge-1.18.1-39.0.66-mdk.zip` 的完整文件，那么恭喜你，下载成功了：找个合适的地方解压这个压缩包吧。
+如果你下载的是形如 `forge-1.18.2-40.1.19-mdk.zip` 的完整文件，那么恭喜你，下载成功了：找个合适的地方解压这个压缩包吧。
 
 ## 模组 ID
 
@@ -44,7 +44,7 @@ Forge MDK 的配置文件是 `build.gradle`。对 Gradle 熟悉的读者应该�
 
 ```groovy title="build.gradle"
 version = '1.0.0' // 模组版本号
-group = 'org.teaconmc' // 模组的 Maven 组名，通常和包名相同
+group = 'org.teacon' // 模组的 Maven 组名，通常和包名相同
 archivesBaseName = 'Xiaozhong' // 最后生成的模组文件名前缀（这里将会生成 Xiaozhong-1.0.0.jar）
 ```
 
@@ -61,8 +61,8 @@ archivesBaseName = 'Xiaozhong' // 最后生成的模组文件名前缀（这里�
 
 ```groovy title="build.gradle"
 minecraft {
-    // MDK 所使用的映射表，默认为 1.18.1 的 official 即官方映射表，由微软官方提供
-    mappings channel: 'official', version: '1.18.1'
+    // MDK 所使用的映射表，默认为 1.18.2 的 official 即官方映射表，由微软官方提供
+    mappings channel: 'official', version: '1.18.2'
     // 以下为启动选项
     runs {
         // 玩家客户端
@@ -82,7 +82,19 @@ minecraft {
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             mods {
-                examplemod { // 修改二：此处需要更改为模组 ID
+                xiaozhong { // 修改二：此处需要更改为模组 ID
+                    source sourceSets.main
+                }
+            }
+        }
+        // 游戏测试服务器
+        gameTestServer {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', 'xiaozhong' // 修改三：此处需要更改为模组 ID
+            mods {
+                xiaozhong { // 修改四：此处需要更改为模组 ID
                     source sourceSets.main
                 }
             }
@@ -92,9 +104,10 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            args '--mod', 'xiaozhong' /* 修改三：此处需要更改为模组 ID */, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', 'xiaozhong', // 修改五：此处需要更改为模组 ID
+                 '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
             mods {
-                examplemod { // 修改四：此处需要更改为模组 ID
+                xiaozhong { // 修改六：此处需要更改为模组 ID
                     source sourceSets.main
                 }
             }
@@ -105,7 +118,7 @@ minecraft {
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="groovy" metastring="{21-57}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
+    <CodeBlock language="groovy" metastring="{21-68}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
 </TabItem>
 </Tabs>
 
@@ -140,7 +153,7 @@ jar {
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="groovy" metastring="{69-81}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
+    <CodeBlock language="groovy" metastring="{80-92}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
 </TabItem>
 </Tabs>
 
@@ -170,17 +183,17 @@ Gradle 是一个基于任务的项目管理系统。通过 Forge MDK 我们可�
 
 * `clean`：清理和 Forge MDK 有关的自动生成的部分文件。
 * `build`：生成模组文件（生成的文件可在 `build/libs` 找到，可用于发布）。
-* `genEclipseRuns`：生成针对 Eclipse 的 `runClient` / `runServer` / `runData` 启动选项。
-* `genIntellijRuns`：生成针对 IntelliJ IDEA 的 `runClient` / `runServer` / `runData` 启动选项。
-* `genVSCodeRuns`：生成针对 Visual Studio Code 的 `runClient` / `runServer` / `runData` 启动选项。
+* `genEclipseRuns`：生成针对 Eclipse 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
+* `genIntellijRuns`：生成针对 IntelliJ IDEA 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
+* `genVSCodeRuns`：生成针对 Visual Studio Code 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
 
 :::info
 
-启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，而 `runData` 用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](./concepts#data-generator)会用到 Data Generator 这一机制。
+启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，`runGameTestServer` 用于游戏测试，而 `runData` 则用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](./concepts#data-generator)会用到 Data Generator 这一机制。
 
 :::
 
-常见的开发工具均深度集成了 Gradle 的支持（或有对应的插件），无论是执行 Gradle 任务还是启动乃至调试游戏均可在开发工具内部进行。
+常见的开发工具均深度集成了 Gradle 的支持（或有对应的插件），无论是执行 Gradle 任务还是通过启动选项启动乃至调试游戏均可在开发工具内部进行。
 
 :::tip
 
