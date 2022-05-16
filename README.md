@@ -13,6 +13,18 @@ npm install --save-dev
 npm start
 ```
 
+使用以下命令构建静态网页文件，构建成功的网页文件位于 `build` 目录：
+
+```bash
+npm run build
+```
+
+使用以下命令预览构建后的静态网页文件：
+
+```bash
+npm run serve
+```
+
 ## 授权协议
 
 TeaCon 执行委员会保留对正山小种中所有文本的法定权利，唯文中代码片段均以 [WTFPL 2.0 协议](http://www.wtfpl.net/about/)开源。
