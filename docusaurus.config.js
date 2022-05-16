@@ -27,13 +27,13 @@ const config = {
         blog: false,
         docs: {
           routeBasePath: '/',
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: require.resolve('./src/sidebars.js'),
           editUrl({ docPath }) {
             return 'https://github.com/teaconmc/Xiaozhong/blob/1.18-forge/docs/' + docPath
           }
         },
         theme: {
-          customCss: [require.resolve('./custom.css')],
+          customCss: [require.resolve('./src/custom.css')],
         },
       }),
     ],
