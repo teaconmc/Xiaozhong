@@ -4,6 +4,9 @@
 # Production
 /build
 
+# Visual Studio Code
+.vscode
+
 # Generated files
 .docusaurus
 .cache-loader
