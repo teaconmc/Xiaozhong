@@ -64,6 +64,11 @@ const config = {
             docId: '1.18.x/README',
             label: '1.18.x',
           },
+          {
+            position: 'right',
+            href: 'https://github.com/teaconmc/Xiaozhong',
+            label: 'GitHub',
+          },
         ],
       },
       footer: {
