@@ -6,7 +6,7 @@
 
 ## 本地预览
 
-本篇指南基于 Docusaurus，因此仅需在命令行输入以下命令即可启用本地预览：
+本篇指南基于 [Docusaurus](https://docusaurus.io/zh-CN/docs)，因此仅需在命令行输入以下命令即可启用本地预览：
 
 ```bash
 npm install --save-dev
