@@ -1,0 +1,42 @@
+name: Deploy to Dahongpao
+
+on:
+  push:
+    branches: [ 1.18-forge ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone GitHub Repo
+        uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: GitHub App Installation token
+        uses: jwenz723/github-app-installation-token@v0.0.4
+        id: fetch-gh-app-token
+        with:
+          app_id: ${{ secrets.TEACON_BOT_ID }}
+          client_id: ${{ secrets.TEACON_BOT_CLIENT_ID }}
+          client_secret: ${{ secrets.TEACON_BOT_CLIENT_SECRET }}
+          installation_id: ${{ secrets.TEACON_BOT_INSTALLATION_ID }}
+          private_key: ${{ secrets.TEACON_BOT_PRIVATE_KEY }}
+      - name: Build Static Pages
+        run: |
+          npm install --save-dev
+          npm run build
+      - name: Push to Dahongpao
+        env:
+          API_TOKEN_GITHUB: ${{ steps.fetch-gh-app-token.outputs.token }}
+        run: |
+          git config --global user.name 'TeaCon Bot'; git config --global user.email 'contact@teacon.org'
+          git clone https://x-access-token:$API_TOKEN_GITHUB@github.com/teaconmc/Dahongpao.git --depth 1
+          cd Dahongpao; rm -rf workspaces/xiaozhong/build; cp -R ../build workspaces/xiaozhong/
+          git add workspaces/xiaozhong/build; git commit -m "Update xiaozhong at $(date -R)"
+          git push; cd ..
+
