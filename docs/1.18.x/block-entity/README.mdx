@@ -22,7 +22,7 @@ Minecraft 中所有的方块实体均属于 `BlockEntity` 类型。我们首先�
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 public static final class MyMachineEntity extends BlockEntity {
-    public MyMachineEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {
+    public MyMachineEntity(BlockEntityType<MyMachineEntity> type, BlockPos worldPosition, BlockState blockState) {
         super(type, worldPosition, blockState);
     }
 }
@@ -30,7 +30,7 @@ public static final class MyMachineEntity extends BlockEntity {
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{67-70,86}" showLineNumbers
+    <CodeBlock language="java" metastring="{67-70,90}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -60,20 +60,20 @@ BLOCK_ENTITY_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
 </TabItem>
 </Tabs>
 
-注意到 `MyMachineEntity::new` 此时会报错。刚才提到的「方块实体实例的工厂方法」就是这个，然而原版要求「这个工厂方法只接受两个参数：`BlockPos` 和 `BlockState`」。我们对 `MyMachineEntity` 的构造器进行如下修改来解决此问题：
+注意到 `MyMachineEntity::new` 此时会报错。刚才提到的「方块实体实例的工厂方法」就是这个，然而原版要求「这个工厂方法只接受两个参数：`BlockPos` 和 `BlockState`」。我们向 `MyMachineEntity` 添加额外构造器来解决此问题：
 
 <Tabs>
 <TabItem value="core" label="核心代码">
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 public MyMachineEntity(BlockPos worldPosition, BlockState blockState) {
-    super(MY_MACHINE_BLOCK_ENTITY.get(), worldPosition, blockState);
+    this(MY_MACHINE_BLOCK_ENTITY.get(), worldPosition, blockState);
 }
 ```
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{68-70}" showLineNumbers
+    <CodeBlock language="java" metastring="{72-74}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -91,8 +91,12 @@ public MyMachineEntity(BlockPos worldPosition, BlockState blockState) {
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 public static final class MyMachineEntity extends BlockEntity {
+    public MyMachineEntity(BlockEntityType<MyMachineEntity> type, BlockPos worldPosition, BlockState blockState) {
+        super(type, worldPosition, blockState);
+    }
+
     public MyMachineEntity(BlockPos worldPosition, BlockState blockState) {
-        super(MY_MACHINE_BLOCK_ENTITY.get(), worldPosition, blockState);
+        this(MY_MACHINE_BLOCK_ENTITY.get(), worldPosition, blockState);
     }
 
     private int count = 0;
@@ -101,7 +105,7 @@ public static final class MyMachineEntity extends BlockEntity {
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{67-72,86}" showLineNumbers
+    <CodeBlock language="java" metastring="{67-76,90}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -190,7 +194,7 @@ public static void tick(Level level, BlockPos pos, BlockState state, MyMachineEn
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{72-85}" showLineNumbers
+    <CodeBlock language="java" metastring="{76-89}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>

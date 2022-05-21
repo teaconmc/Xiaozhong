@@ -65,8 +65,12 @@ public class Xiaozhong {
     }
 
     public static final class MyMachineEntity extends BlockEntity {
-        public MyMachineEntity(BlockPos pWorldPosition, BlockState pBlockState) {
-            super(MY_MACHINE_BLOCK_ENTITY.get(), pWorldPosition, pBlockState);
+        public MyMachineEntity(BlockEntityType<MyMachineEntity> type, BlockPos worldPosition, BlockState blockState) {
+            super(type, worldPosition, blockState);
+        }
+
+        public MyMachineEntity(BlockPos worldPosition, BlockState blockState) {
+            this(MY_MACHINE_BLOCK_ENTITY.get(), worldPosition, blockState);
         }
 
         private int count = 0;
