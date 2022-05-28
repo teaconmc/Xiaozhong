@@ -1,0 +1,55 @@
+# 使用JSON作为语言文件
+
+<!-- markdownlint-disable MD033 -->
+
+我们在之前的教程中，创建了一些方块与物品并创建了语言文件。但在Minecraft中，还有另一种本地化的方法。
+
+## 非本地化名称与本地化名称
+
+我们之前创建的物品、方块的例如`item.xiaozhong.sulfur_dust`的名称，都是一串代码，这种名称叫**非本地化名称**。而我们平时在Minecraft中看到的好看好记的物品、方块的名字，叫**本地化名称**。
+
+将非本地化名称转换为本地化名称的过程，叫做**本地化**。
+
+## 将我们的物品、方块本地化
+
+在Minecraft中本地化名主要是写在一个`json`文件里的。例如这样：
+
+```json
+{
+  "key.name": "name",
+  "key.information": "information",
+  "modid": "teacon"
+}
+```
+
+可见，我们的语言文件是一个**『键值对』**。『键』就是我们物品、方块的非本地化名称，『值』就是我们物品、方块的本地化名称。
+
+### 中文
+
+对于中文，只需要在`src/main/resources/assets/<modid>/lang/`创建一个叫`zh_cn.json`的文件，在『键』的位置填上未本地化时Minecraft显示的例如`item.xiaozhong.sulfur_dust`的名称，『值』的位置填上你想要的本地化名称即可
+
+```json
+{
+  "item.xiaozhong.sulfur_dust": "硫粉",
+
+  "block.xiaozhong.sulfur_block": "硫磺块"
+}
+```
+
+### 英文
+
+当然，仅有中文的语言文件还不够，因为如果没有英文的语言文件，使用其它语言时，还是会显示非本地化名称，所以，我们还要创建英文的语言文件。
+
+在`src/main/resources/assets/<modid>/lang/`创建一个叫`en_us.json`的文件，按照先前的写法编写即可。
+
+```json
+{
+  "item.xiaozhong.sulfur_dust": "Sulfur Dust",
+
+  "block.xiaozhong.sulfur_block": "Sulfur Block"
+}
+```
+
+### 文言文和其他语言
+
+相应的，对于文言文，在同样的目录下创建`lzh.json`即可，其他语言亦如此。
