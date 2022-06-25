@@ -6,6 +6,7 @@ import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import CodeBlock from '@theme/CodeBlock'
 import Xiaozhong from '!!raw-loader!./xiaozhong/Xiaozhong.java'
+import XiaozhongTree from '!!raw-loader!./tree/Xiaozhong.java'
 
 Minecraft 将世界生成划分为了若干个阶段，其中模组开发者们经常关注的阶段有下列几个：
 
@@ -40,7 +41,7 @@ public static void registerFeatures() {
             "xiaozhong:underground_ice",
             // 并基于 Feature.ORE
             Feature.ORE,
-            // 这个生成器的操作如下：
+            // 这个生成器的配置如下：
             new OreConfiguration(
                     // 将原版的「石头」（同时包括了安山岩、闪长岩、和花岗岩）……
                     OreFeatures.STONE_ORE_REPLACEABLES,
@@ -170,3 +171,92 @@ public static void onBiomeLoading(BiomeLoadingEvent event) {
 这些属性共同组成了 `TreeConfiguration`，用于和 `TreeFeature` 搭配使用。
 
 原版为我们提供了 `TreeConfiguration.TreeConfigurationBuilder` 以方便我们配置全新树木地物。
+我们可以像下面这样创建一个全新的 `TreeFeature`：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+public static Holder<ConfiguredFeature<?, ?>> MY_ORE_FEATURE;
+
+public static void registerFeatures() {
+    GOLDEN_TREE_FEATURE = FeatureUtils.register(
+            // 我们这个生成器的名字是 xiaozhong:golden_tree，
+            "xiaozhong:golden_tree",
+            // 并基于 Feature.TREE
+            Feature.TREE,
+            // 这个生成器的配置如下：
+            new TreeConfiguration.TreeConfigurationBuilder(
+                    // 树干由金块组成，
+                    BlockStateProvider.simple(Blocks.GOLD_BLOCK),
+                    // 树干为 1x1，高度在 8 到 20 不等，
+                    //（基础高度 8，随机增加 0-12 的高度；第三个参数如果不是 0，
+                    // 那么还会有第二个随机增加的高度）
+                    new StraightTrunkPlacer(8, 12, 0),
+                    // 树叶由荧石组成，
+                    BlockStateProvider.simple(Blocks.GLOWSTONE),
+                    // 树叶的形状和原版普通橡树类似，半径为 4 格，没有偏移，高 4 格
+                    new BlobFoliagePlacer(ConstantInt.of(4), ConstantInt.of(0), 4),
+                    // 这个参数会影响树木的疏密，因为这个参数会影响「树木的占地面积」。
+                    // 后两个值分别代表了占地的下限和上限。
+                    // 过于浓密的树木会重叠在一起，请根据情况进行调整。
+                    new TwoLayersFeatureSize(1, 0, 1)
+            ).build());
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{33,42-53,64}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{XiaozhongTree}</CodeBlock>
+</TabItem>
+</Tabs>
+
+然后配置相应的「放置规则」，产生 `PlacedFeature`：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+public static Holder<ConfiguredFeature<?, ?>> MY_ORE_FEATURE;
+
+public static void registerFeatures() {
+    GOLDEN_TREE = PlacementUtils.register(
+            // 我们这个生成器的名字是 xiaozhong:golden_tree，
+            "xiaozhong:golden_tree",
+            // 并使用我们刚刚注册的 GOLDEN_TREE_FEATURE
+            GOLDEN_TREE_FEATURE,
+            // 使用这些放置规则：
+            // 10% 的概率尝试 6 + 1 = 7 次，另有 90% 的概率尝试 6 次、
+            PlacementUtils.countExtra(6, 0.1F, 1),
+            // X 和 Z 方向上有 0 - 15 格不等的随机漂移，
+            InSquarePlacement.spread(),
+            // 必须生成在陆地上（去掉后你可以发现河里海里的泥土中也会生成）、
+            VegetationPlacements.TREE_THRESHOLD,
+            // 放置点要高于海床、
+            PlacementUtils.HEIGHTMAP_OCEAN_FLOOR,
+            // 只能放在橡树树苗可以生长的方块上、
+            PlacementUtils.filteredByBlockSurvival(Blocks.OAK_SAPLING),
+            // 当前生物群系必须声明过这个生成器。
+            BiomeFilter.biome()
+    );
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{35,42,54-64}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{XiaozhongTree}</CodeBlock>
+</TabItem>
+</Tabs>
+
+最后按照和矿石一样的方式，将树木加入世界生成即可。
+
+以下演示了上述整个注册树木生成的流程：
+
+<CodeBlock language="java" showLineNumbers
+           title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{XiaozhongTree}</CodeBlock>
+
+若操作正确，打开游戏后便可轻易找到漫山遍野的「黄金树」了。
+
+![黄金树](./golden-tree.png)
