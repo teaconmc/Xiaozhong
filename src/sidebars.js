@@ -15,6 +15,7 @@ const sidebars = {
       '1.18.x/preparations/README',
       '1.18.x/concepts/README',
       '1.18.x/block-item-objects/README',
+      '1.18.x/localization-with-json/README',
       '1.18.x/block-entity/README',
       '1.18.x/world-gen/README',
     ],
