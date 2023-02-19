@@ -6,6 +6,7 @@ import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import CodeBlock from '@theme/CodeBlock'
 import BuildGradle from '!!raw-loader!./build.gradle'
+import BuildGradleKotlin from '!!raw-loader!./build.gradle.kts'
 
 除去必要的硬件条件外，读者需要从 <https://files.minecraftforge.net> 下载模组开发套件（Mod Development Kit，简称 MDK）。
 
@@ -33,9 +34,13 @@ import BuildGradle from '!!raw-loader!./build.gradle'
 
 Forge MDK 的配置文件是 `build.gradle`。对 Gradle 熟悉的读者应该注意到了这是 Gradle 的核心配置文件。
 
+Gradle 提供了使用 kotlin 编写构建脚本的支持，你可以将脚本重命名为 `build.gradle.kts`，然后使用本教程提供的 kts 写法代替之前的写法。
+
 :::tip
 
 如欲进一步了解 Gradle，可参阅 [Gradle 官方用户指南](https://docs.gradle.org/current/userguide/userguide.html)。
+
+如欲进一步了解使用 Kotlin 编写 Gradle 脚本，可参阅 [Gradle Kotlin DSL 入门](https://docs.gradle.org/current/userguide/kotlin_dsl.html#kotlin_dsl)。
 
 :::
 
@@ -53,6 +58,18 @@ archivesBaseName = 'Xiaozhong' // 最后生成的模组文件名前缀（这里�
 </TabItem>
 <TabItem value="full" label="完整代码">
     <CodeBlock language="groovy" metastring="{14-16}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
+</TabItem>
+<TabItem value="core-kts" label="核心代码（kts）">
+
+```kotlin title="build.gradle.kts"
+version = "1.0.0" // 模组版本号
+group = "org.teacon" // 模组的 Maven 组名，通常和包名相同
+base.archivesName.set("Xiaozhong") // 最后生成的模组文件名前缀（这里将会生成 Xiaozhong-1.0.0.jar）
+```
+
+</TabItem>
+<TabItem value="full-kts" label="完整代码（kts）">
+    <CodeBlock language="kotlin" metastring="{22-24}" title="build.gradle.kts" showLineNumbers>{BuildGradleKotlin}</CodeBlock>
 </TabItem>
 </Tabs>
 
@@ -122,6 +139,70 @@ minecraft {
 <TabItem value="full" label="完整代码">
     <CodeBlock language="groovy" metastring="{21-68}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
 </TabItem>
+<TabItem value="core-kts" label="核心代码（kts）">
+
+```kotlin title="build.gradle.kts"
+configure<UserDevExtension> {
+    // MDK 所使用的映射表，默认为 1.18.2 的 official 即官方映射表，由微软官方提供
+    mappings("official", "1.18.2")
+    // 以下为启动选项
+    runs {
+        // 玩家客户端
+        create("client") {
+            workingDirectory(project.file("run"))
+            property("forge.logging.markers", "REGISTRIES")
+            property("forge.logging.console.level", "debug")
+            mods {
+                create("xiaozhong") { // 修改一：此处需要更改为模组 ID
+                    source(sourceSets.getByName("main"))
+                }
+            }
+        }
+        // 专用服务端
+        create("server") {
+            workingDirectory(project.file("run"))
+            property("forge.logging.markers", "REGISTRIES")
+            property("forge.logging.console.level", "debug")
+            mods {
+                create("xiaozhong") { // 修改二：此处需要更改为模组 ID
+                    source(sourceSets.getByName("main"))
+                }
+            }
+        }
+        // 游戏测试服务器
+        create("gameTestServer") {
+            workingDirectory(project.file("run"))
+            property("forge.logging.markers", "REGISTRIES")
+            property("forge.logging.console.level", "debug")
+            property("forge.enabledGameTestNamespaces", "xiaozhong") // 修改三：此处需要更改为模组 ID
+            mods {
+                create("xiaozhong") { // 修改四：此处需要更改为模组 ID
+                    source(sourceSets.getByName("main"))
+                }
+            }
+        }
+        // Data Generator
+        create("data") {
+            workingDirectory(project.file("run"))
+            property("forge.logging.markers", "REGISTRIES")
+            property("forge.logging.console.level", "debug")
+            args("--mod", "xiaozhong", // 修改五：此处需要更改为模组 ID
+                "--all", "--output", file("src/generated/resources/"), "--existing", file("src/main/resources/")
+            )
+            mods {
+                create("xiaozhong") { // 修改六：此处需要更改为模组 ID
+                    source(sourceSets.getByName("main"))
+                }
+            }
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full-kts" label="完整代码（kts）">
+    <CodeBlock language="kotlin" metastring="{30-78}" title="build.gradle.kts" showLineNumbers>{BuildGradleKotlin}</CodeBlock>
+</TabItem>
 </Tabs>
 
 :::info
@@ -156,6 +237,31 @@ jar {
 </TabItem>
 <TabItem value="full" label="完整代码">
     <CodeBlock language="groovy" metastring="{80-92}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
+</TabItem>
+<TabItem value="core-kts" label="核心代码（kts）">
+
+```kotlin title="build.gradle.kts"
+val jar: Jar = tasks.getByName<Jar>("jar")
+jar.apply {
+    manifest {
+        attributes(mapOf(
+            // Specification 信息
+            "Specification-Title" to "Xiaozhong",
+            "Specification-Vendor" to "TeaConMC",
+            "Specification-Version" to "1",
+            // Implementation 信息
+            "Implementation-Title" to project.name,
+            "Implementation-Version" to jar.archiveVersion,
+            "Implementation-Vendor" to "TeaConMC",
+            "Implementation-Timestamp" to OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        ))
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full-kts" label="完整代码（kts）">
+    <CodeBlock language="kotlin" metastring="{89-102}" title="build.gradle.kts" showLineNumbers>{BuildGradleKotlin}</CodeBlock>
 </TabItem>
 </Tabs>
 
