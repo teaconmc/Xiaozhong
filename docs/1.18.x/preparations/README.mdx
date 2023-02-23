@@ -34,13 +34,9 @@ import BuildGradleKotlin from '!!raw-loader!./build.gradle.kts'
 
 Forge MDK 的配置文件是 `build.gradle`。对 Gradle 熟悉的读者应该注意到了这是 Gradle 的核心配置文件。
 
-Gradle 提供了使用 kotlin 编写构建脚本的支持，你可以将脚本重命名为 `build.gradle.kts`，然后使用本教程提供的 kts 写法代替之前的写法。
-
 :::tip
 
-如欲进一步了解 Gradle，可参阅 [Gradle 官方用户指南](https://docs.gradle.org/current/userguide/userguide.html)。
-
-如欲进一步了解使用 Kotlin 编写 Gradle 脚本，可参阅 [Gradle Kotlin DSL 入门](https://docs.gradle.org/current/userguide/kotlin_dsl.html#kotlin_dsl)。
+如欲进一步了解 Gradle，可参阅 [Gradle 官方用户指南](https://docs.gradle.org/current/userguide/userguide.html)。此外，Gradle 还提供了使用 Kotlin 编写构建脚本的支持，如欲进一步了解，可参阅 [Gradle Kotlin DSL 入门](https://docs.gradle.org/current/userguide/kotlin_dsl.html#kotlin_dsl)以及本篇指南的[使用 Kotlin 配置项目](#使用-kotlin-配置项目)一节。
 
 :::
 
@@ -58,18 +54,6 @@ archivesBaseName = 'Xiaozhong' // 最后生成的模组文件名前缀（这里�
 </TabItem>
 <TabItem value="full" label="完整代码">
     <CodeBlock language="groovy" metastring="{14-16}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
-</TabItem>
-<TabItem value="core-kts" label="核心代码（kts）">
-
-```kotlin title="build.gradle.kts"
-version = "1.0.0" // 模组版本号
-group = "org.teacon" // 模组的 Maven 组名，通常和包名相同
-base.archivesName.set("Xiaozhong") // 最后生成的模组文件名前缀（这里将会生成 Xiaozhong-1.0.0.jar）
-```
-
-</TabItem>
-<TabItem value="full-kts" label="完整代码（kts）">
-    <CodeBlock language="kotlin" metastring="{22-24}" title="build.gradle.kts" showLineNumbers>{BuildGradleKotlin}</CodeBlock>
 </TabItem>
 </Tabs>
 
@@ -139,9 +123,101 @@ minecraft {
 <TabItem value="full" label="完整代码">
     <CodeBlock language="groovy" metastring="{21-68}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
 </TabItem>
-<TabItem value="core-kts" label="核心代码（kts）">
+</Tabs>
+
+:::info
+
+Minecraft 官方对源代码编译后进行了混淆，因此为还原方法名、字段名、类名、以及包名以方便模组开发，Forge MDK 需要参照一个映射表。官方映射表未包含变量名的相关数据，而一个名叫「Parchment」的项目正好填补了这一空白。如欲使用「Parchment」映射表，请参阅 [Parchment 官方文档](https://github.com/ParchmentMC/Librarian/blob/dev/docs/FORGEGRADLE.md)。
+
+:::
+
+需要修改的第三处在 `jar {}` 块内，约定了 JAR 的版本信息：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```groovy title="build.gradle"
+jar {
+    manifest {
+        attributes([
+                // Specification 信息
+                "Specification-Title"     : "Xiaozhong",
+                "Specification-Vendor"    : "TeaConMC",
+                "Specification-Version"   : "1",
+                // Implementation 信息
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : project.jar.archiveVersion,
+                "Implementation-Vendor"   : "TeaConMC",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="groovy" metastring="{80-92}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
+</TabItem>
+</Tabs>
+
+:::info
+
+JAR 的版本信息分为 `Specification` 和 `Implementation` 两部分，具体可参见 [Oracle 官方提供的文档]( https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html)。
+
+:::
+
+配置文件修改完成后，将 `build.gradle` 所在目录使用文本编辑器或 IDE 打开，等待进度条加载完成即可。
+
+:::info
+
+Forge 官方倾向于支持的开发工具有：Eclipse、IntelliJ IDEA、和 Visual Studio Code。我们鼓励使用 IntelliJ IDEA（<https://www.jetbrains.com/idea/>）作为开发工具。
+
+:::
+
+:::caution
+
+文本编辑器或 IDE 会自动完成全部配置（对 IntelliJ IDEA 而言进度会在 Build 侧边栏显示），但如果网络环境欠佳，配置进度将会十分缓慢，甚至可能出错。如果反复尝试均无法配置成功，可尝试删除**用户根目录**的 `.gradle` 目录重试。
+
+:::
+
+## MDK 任务
+
+Gradle 是一个基于任务的项目管理系统。通过 Forge MDK 我们可以执行许多不同的 Gradle 任务：
+
+* `clean`：清理和 Forge MDK 有关的自动生成的部分文件。
+* `build`：生成模组文件（生成的文件可在 `build/libs` 找到，可用于发布）。
+* `genEclipseRuns`：生成针对 Eclipse 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
+* `genIntellijRuns`：生成针对 IntelliJ IDEA 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
+* `genVSCodeRuns`：生成针对 Visual Studio Code 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
+
+:::info
+
+启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，`runGameTestServer` 用于游戏测试，而 `runData` 则用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](./concepts#data-generator)会用到 Data Generator 这一机制。
+
+:::
+
+常见的开发工具均深度集成了 Gradle 的支持（或有对应的插件），无论是执行 Gradle 任务还是通过启动选项启动乃至调试游戏均可在开发工具内部进行。
+
+:::tip
+
+IntelliJ IDEA 用户可打开 Gradle 侧边栏，并在 `Tasks` 下找到上述任务并双击执行。在 IntelliJ IDEA 执行 `genIntellijRuns` 任务后，右上角便会出现四个相应的启动选项。
+
+![idea-run-example.png](idea-run-example.png)
+
+:::
+
+## 使用 Kotlin 配置项目
+
+Gradle 提供了使用 Kotlin 编写构建脚本的支持，你可以将 `build.gradle` 重命名为 `build.gradle.kts`，然后使用基于 Kotlin DSL 的 `kts` 写法代替之前的写法。以下提供一份 `build.gradle.kts` 的参考。
+
+<Tabs>
+<TabItem value="core" label="核心代码">
 
 ```kotlin title="build.gradle.kts"
+version = "1.0.0" // 模组版本号
+group = "org.teacon" // 模组的 Maven 组名，通常和包名相同
+base.archivesName.set("Xiaozhong") // 最后生成的模组文件名前缀（这里将会生成 Xiaozhong-1.0.0.jar）
+
 configure<UserDevExtension> {
     // MDK 所使用的映射表，默认为 1.18.2 的 official 即官方映射表，由微软官方提供
     mappings("official", "1.18.2")
@@ -197,50 +273,7 @@ configure<UserDevExtension> {
         }
     }
 }
-```
 
-</TabItem>
-<TabItem value="full-kts" label="完整代码（kts）">
-    <CodeBlock language="kotlin" metastring="{30-78}" title="build.gradle.kts" showLineNumbers>{BuildGradleKotlin}</CodeBlock>
-</TabItem>
-</Tabs>
-
-:::info
-
-Minecraft 官方对源代码编译后进行了混淆，因此为还原方法名、字段名、类名、以及包名以方便模组开发，Forge MDK 需要参照一个映射表。官方映射表未包含变量名的相关数据，而一个名叫「Parchment」的项目正好填补了这一空白。如欲使用「Parchment」映射表，请参阅 [Parchment 官方文档](https://github.com/ParchmentMC/Librarian/blob/dev/docs/FORGEGRADLE.md)。
-
-:::
-
-需要修改的第三处在 `jar {}` 块内，约定了 JAR 的版本信息：
-
-<Tabs>
-<TabItem value="core" label="核心代码">
-
-```groovy title="build.gradle"
-jar {
-    manifest {
-        attributes([
-                // Specification 信息
-                "Specification-Title"     : "Xiaozhong",
-                "Specification-Vendor"    : "TeaConMC",
-                "Specification-Version"   : "1",
-                // Implementation 信息
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "TeaConMC",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-}
-```
-
-</TabItem>
-<TabItem value="full" label="完整代码">
-    <CodeBlock language="groovy" metastring="{80-92}" title="build.gradle" showLineNumbers>{BuildGradle}</CodeBlock>
-</TabItem>
-<TabItem value="core-kts" label="核心代码（kts）">
-
-```kotlin title="build.gradle.kts"
 val jar: Jar = tasks.getByName<Jar>("jar")
 jar.apply {
     manifest {
@@ -260,53 +293,7 @@ jar.apply {
 ```
 
 </TabItem>
-<TabItem value="full-kts" label="完整代码（kts）">
-    <CodeBlock language="kotlin" metastring="{89-102}" title="build.gradle.kts" showLineNumbers>{BuildGradleKotlin}</CodeBlock>
+<TabItem value="full-kts" label="完整代码">
+    <CodeBlock language="kotlin" metastring="{22-24,30-78,89-102}" title="build.gradle.kts" showLineNumbers>{BuildGradleKotlin}</CodeBlock>
 </TabItem>
 </Tabs>
-
-:::info
-
-JAR 的版本信息分为 `Specification` 和 `Implementation` 两部分，具体可参见 [Oracle 官方提供的文档]( https://docs.oracle.com/javase/tutorial/deployment/jar/packageman.html)。
-
-:::
-
-配置文件修改完成后，将 `build.gradle` 所在目录使用文本编辑器或 IDE 打开，等待进度条加载完成即可。
-
-:::info
-
-Forge 官方倾向于支持的开发工具有：Eclipse、IntelliJ IDEA、和 Visual Studio Code。我们鼓励使用 IntelliJ IDEA（<https://www.jetbrains.com/idea/>）作为开发工具。
-
-:::
-
-:::caution
-
-文本编辑器或 IDE 会自动完成全部配置（对 IntelliJ IDEA 而言进度会在 Build 侧边栏显示），但如果网络环境欠佳，配置进度将会十分缓慢，甚至可能出错。如果反复尝试均无法配置成功，可尝试删除**用户根目录**的 `.gradle` 目录重试。
-
-:::
-
-## MDK 任务
-
-Gradle 是一个基于任务的项目管理系统。通过 Forge MDK 我们可以执行许多不同的 Gradle 任务：
-
-* `clean`：清理和 Forge MDK 有关的自动生成的部分文件。
-* `build`：生成模组文件（生成的文件可在 `build/libs` 找到，可用于发布）。
-* `genEclipseRuns`：生成针对 Eclipse 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
-* `genIntellijRuns`：生成针对 IntelliJ IDEA 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
-* `genVSCodeRuns`：生成针对 Visual Studio Code 的 `runClient` / `runServer` / `runGameTestServer` / `runData` 启动选项。
-
-:::info
-
-启动选项中，`runClient` 和 `runServer` 用于启动 Minecraft 玩家客户端或专用服务端，`runGameTestServer` 用于游戏测试，而 `runData` 则用于启动 Data Generator。Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资源文件。我们[稍后](./concepts#data-generator)会用到 Data Generator 这一机制。
-
-:::
-
-常见的开发工具均深度集成了 Gradle 的支持（或有对应的插件），无论是执行 Gradle 任务还是通过启动选项启动乃至调试游戏均可在开发工具内部进行。
-
-:::tip
-
-IntelliJ IDEA 用户可打开 Gradle 侧边栏，并在 `Tasks` 下找到上述任务并双击执行。在 IntelliJ IDEA 执行 `genIntellijRuns` 任务后，右上角便会出现四个相应的启动选项。
-
-![idea-run-example.png](idea-run-example.png)
-
-:::
