@@ -1,0 +1,230 @@
+# 方块实体
+
+<!-- markdownlint-disable MD033 -->
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import CodeBlock from '@theme/CodeBlock'
+import Xiaozhong from '!!raw-loader!./xiaozhong/Xiaozhong.java'
+
+Minecraft 使用名为方块实体（Block Entity）的机制来实现一些一般情况下方块做不到或很难做到的事情，例如
+
+- 持有更复杂的数据（物品、文本等）
+- 实现像熔炉那样持续不断地行为
+- 拥有奇妙的渲染特效
+
+## 方块实体类型
+
+Minecraft 中所有的方块实体均属于 `BlockEntity` 类型。我们首先需要创建我们自己的 `BlockEntity` 类。
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+public static final class MyMachineEntity extends BlockEntity {
+    public MyMachineEntity(BlockEntityType<MyMachineEntity> type, BlockPos worldPosition, BlockState blockState) {
+        super(type, worldPosition, blockState);
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{67-70,90}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+然后我们需要注册一个 `BlockEntityType` 实例，它代表了「一种特定的方块实体」，指明了创建对应方块实体实例的工厂方法，及哪些方块允许持有这种方块实体。
+`BlockEntityType` 的注册和方块及物品一样，由 Forge 托管，对应的注册系统为 `ForgeRegistries.BLOCK_ENTITIES`。
+使用 `DeferredRegister` 注册 `BlockEntityType`：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// 注册 BlockEntityType
+public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, "xiaozhong");
+// 注册 xiaozhong:my_machine
+public static final RegistryObject<BlockEntityType<MyMachienEntity>> MY_MACHINE_BLOCK_ENTITY;
+MY_MACHINE_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register("my_machine",
+        () -> BlockEntityType.Builder.of(MyMachineEntity::new, MY_MACHINE.get()).build(DSL.remainderType()));
+// 添加监听器
+BLOCK_ENTITY_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{28,31,36-37,42}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+注意到 `MyMachineEntity::new` 此时会报错。刚才提到的「方块实体实例的工厂方法」就是这个，然而原版要求「这个工厂方法只接受两个参数：`BlockPos` 和 `BlockState`」。我们向 `MyMachineEntity` 添加额外构造器来解决此问题：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+public MyMachineEntity(BlockPos worldPosition, BlockState blockState) {
+    this(MY_MACHINE_BLOCK_ENTITY.get(), worldPosition, blockState);
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{72-74}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+:::info
+
+这个案例也展示了 `DeferredRegistry` 的一个优势：可以方便开发者打破这种出现循环依赖的情况。
+
+:::
+
+`BlockEntity` 此时像是一个纯粹的数据容器：我们在我们的 `MyMachineEntity` 中可以随意添加新的成员字段，并视情况决定是否创建对应的访问器。
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+public static final class MyMachineEntity extends BlockEntity {
+    public MyMachineEntity(BlockEntityType<MyMachineEntity> type, BlockPos worldPosition, BlockState blockState) {
+        super(type, worldPosition, blockState);
+    }
+
+    public MyMachineEntity(BlockPos worldPosition, BlockState blockState) {
+        this(MY_MACHINE_BLOCK_ENTITY.get(), worldPosition, blockState);
+    }
+
+    private int count = 0;
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{67-76,90}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+## 方块类
+
+脱离方块的方块实体是不存在的。能容纳方块实体的方块需实现 `EntityBlock` 接口。实现这一接口需实现 `newBlockEntity` 方法。
+
+Minecraft 原版为我们提供了 `BaseEntityBlock` 类方便我们实现：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "xiaozhong");
+
+public static final RegistryObject<Block> MY_MACHINE;
+MY_MACHINE = BLOCKS.register("my_machine",
+                () -> new MyMachine(BlockBehaviour.Properties.of(Material.METAL)));
+
+BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+
+public static final class MyMachine extends BaseEntityBlock {
+    public MyMachine(Properties props) {
+        super(props);
+    }
+
+    @Nonnull
+    @Override
+    public RenderShape getRenderShape(@Nonnull BlockState state) {
+        // 注意这一方法的返回值被 BaseEntityBlock 覆盖成了 INVISIBLE，
+        // 这代表其无法使用 Minecraft 自带的方块模型的方式渲染。
+        // 为保证正常渲染应将这一方法的返回值覆盖回来。
+        return RenderShape.MODEL;
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+        // 这里返回我们刚刚定义的方块实体
+        return new MyMachineEntity(pos, state);
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{27,30,34-35,41,45-59,65}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+## 方块实体刻
+
+默认情况下，方块实体并不具备跟随游戏刻刷新（亦即方块实体刻）的能力，若要获得此能力，方块实体所在的那个方块需要明确声明一个所谓的「Ticker」，亦即 `BlockEntityTicker<?>`。这通过覆盖 `EntityBlock` 的 `getTicker` 方法实现。
+
+此外，你可以根据 `Level` 是在逻辑服务器上还是逻辑客户端上来返回不同的 Ticker。通常我们在客户端不需要特别的逻辑，因此我们会在 `level.isClientSide()` 返回 `true` 时，令 `getTicker` 返回 `null`。
+
+首先在 `MyMachineEntity` 中创建静态方法 `tick`：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+private int count = 0;
+
+public static void tick(Level level, BlockPos pos, BlockState state, MyMachineEntity entity) {
+    // 计数。每一个游戏刻中，游戏都会调用一次 tick 方法，所以我们只需要在这里让 count 自增 1 即可。
+    entity.count += 1;
+    // 当计数超过 100 时……
+    if (entity.count > 100) {
+        // 首先重置计数
+        entity.count = 0;
+        // 检查 Level 实例是否存在，以及是不是在服务器上
+        if (level != null && !level.isClientSide()) {
+            // 然后寻找半径 5 方块以内的玩家，最后的 false 表示无视创造或观察模式的玩家
+            var player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 5.0, false);
+            // 如果找到了这样的玩家……
+            if (player != null) {
+                // 向这名玩家的聊天栏发送问候语。
+                player.sendSystemMessage(Component.translatable("chat.xiaozhong.welcome"));
+            }
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{76-89}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+然后在我们的方块类中，覆写 `getTicker` 方法：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+@Nullable
+@Override
+public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+    // BaseEntityBlock 提供了 createTickerHelper 帮助你生成 BlockEntityTicker 的实例，这里直接调用并传入 tick 方法引用即可。
+    return level.isClientSide() ? null : createTickerHelper(blockEntityType, MY_MACHINE_BLOCK_ENTITY.get(), MyMachineEntity::tick);
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{61-64}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+以下演示了一个最基础方块实体的实现及的注册流程——没有相应的语言文件，没有模型，什么都没有，甚至没有为该方块注册对应的物品：
+
+<CodeBlock language="java" showLineNumbers
+           title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+
+这个方块实体的效果是，每 100 个游戏刻检查是否有玩家距离该方块实体距离不到 5 方块，若有，随机抽一位向其打招呼。
+
+打开游戏，执行 `/setblock ~ ~-1 ~ xiaozhong:my_machine` 看看效果吧～
