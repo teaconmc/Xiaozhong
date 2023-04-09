@@ -13,20 +13,18 @@ import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 @Mod("xiaozhong")
 public class Xiaozhong {
     public Xiaozhong() {
-        MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
+        MinecraftForge.EVENT_BUS.addListener(Xiaozhong::onLoggedIn);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
     }
 
-    public static class PlayerLoggedInHandler {
-        public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-            var player = event.getEntity();
-            player.sendSystemMessage(Component.literal("chat.xiaozhong.welcome"));
-        }
+    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        var player = event.getEntity();
+        player.sendSystemMessage(Component.literal("chat.xiaozhong.welcome"));
     }
 
     public static void onGatherData(GatherDataEvent event) {
         var gen = event.getGenerator();
-        PackOutput packOutput = gen.getPackOutput();
+        var packOutput = gen.getPackOutput();
         gen.addProvider(event.includeClient(), new EnglishLanguageProvider(packOutput));
         gen.addProvider(event.includeClient(), new ChineseLanguageProvider(packOutput));
     }

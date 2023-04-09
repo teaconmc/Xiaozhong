@@ -36,7 +36,7 @@ Forge MDK 默认从 `src/main/resources` 和 `src/generated/resources` 检索资
 
 关于 `pack.mcmeta` 的具体格式，请参见 Minecraft Wiki 对[数据包](https://minecraft.fandom.com/zh/wiki/%E6%95%B0%E6%8D%AE%E5%8C%85)和[资源包](https://minecraft.fandom.com/zh/wiki/%E8%B5%84%E6%BA%90%E5%8C%85)的介绍。`pack_format` 指定了数据包和资源包的版本，对于 Minecraft 1.19.4，Forge 推荐使用 `12` 作为 `pack_format` 的值。
 
-可能有曾开发过之前版本的 Mod 的读者已经发现了，与之前相比多出了两个 key： `forge:resource_pack_format` 与 `forge:data_pack_format`，这两个是 forge 对原版 pack.mcmeta 的修改，允许 resource_pack 与 data_pack 使用不同的版本。
+此处需要注意，forge 添加了两个键： `forge:resource_pack_format` 与 `forge:data_pack_format`，分别代表了 resource_pack 与 data_pack 的版本，允许 resource_pack 与 data_pack 使用不同的版本。
 
 :::
 
@@ -147,6 +147,7 @@ if (FMLEnvironment.dist == Dist.CLIENT) {
 
 public static class PlayerLoggedInHandler {
     public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        // 检查到玩家登录后，向玩家发送一条「Welcome to xiaozhong!」的消息
         var player = event.getEntity();
         player.sendSystemMessage(Component.literal("Welcome to xiaozhong!"));
     }
@@ -242,23 +243,21 @@ Minecraft 原版便提供了很多不同的 `DataProvider` 实例，Forge 还对
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 添加监听器
-MinecraftForge.EVENT_BUS.addListener(PlayerLoggedInHandler::onLoggedIn);
+MinecraftForge.EVENT_BUS.addListener(Xiaozhong::onLoggedIn);
 FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
 
-public static class PlayerLoggedInHandler {
-    public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        var player = event.getEntity();
-        // 发送一条 chat.xiaozhong.welcome 对应的消息
-        // Data Generator 生成了含有 chat.xiaozhong.welcome 的语言文件
-        player.sendSystemMessage(Component.literal("chat.xiaozhong.welcome"));
-    }
+public static void onLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+    var player = event.getEntity();
+    // 发送一条 chat.xiaozhong.welcome 对应的消息
+    // Data Generator 生成了含有 chat.xiaozhong.welcome 的语言文件
+    player.sendSystemMessage(Component.translatable("chat.xiaozhong.welcome"));
 }
 
 public static void onGatherData(GatherDataEvent event) {
     // Data Generator 启动时，该方法便会调用，新添加的 DataProvider 也开始工作
     // 从而在 src/generated/resources 下的 xiaozhong:en_us 和 xiaozhong:zh_cn 两处生成语言文件
     var gen = event.getGenerator();
-    PackOutput packOutput = gen.getPackOutput();
+    var packOutput = gen.getPackOutput();
     gen.addProvider(event.includeClient(), new EnglishLanguageProvider(packOutput));
     gen.addProvider(event.includeClient(), new ChineseLanguageProvider(packOutput));
 }
@@ -280,6 +279,8 @@ public static class EnglishLanguageProvider extends LanguageProvider {
 // 中文语言文件
 public static class ChineseLanguageProvider extends LanguageProvider {
     public ChineseLanguageProvider(PackOutput packOutput) {
+        // 前三个参数分别是 Data Generator 本身，模组 ID，以及语言代码
+        // 语言代码对应语言文件的资源路径，此处为 xiaozhong:zh_cn
         super(packOutput, "xiaozhong", "zh_cn");
     }
 
