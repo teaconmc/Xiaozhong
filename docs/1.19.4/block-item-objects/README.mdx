@@ -153,6 +153,13 @@ BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
 // 向 Data Generator 添加 DataProvider
 FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
 
+public static void onGatherData(GatherDataEvent event) {
+    var gen = event.getGenerator();
+    var packOutput = gen.getPackOutput();
+    var helper = event.getExistingFileHelper();
+    gen.addProvider(event.includeClient(), new EnglishLanguageProvider(packOutput));
+    gen.addProvider(event.includeClient(), new ChineseLanguageProvider(packOutput));
+
 // 英文语言文件
 public static class EnglishLanguageProvider extends LanguageProvider {
     // ...

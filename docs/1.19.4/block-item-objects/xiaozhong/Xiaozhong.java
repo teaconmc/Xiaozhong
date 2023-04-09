@@ -60,7 +60,7 @@ public class Xiaozhong {
 
     public static void onGatherData(GatherDataEvent event) {
         var gen = event.getGenerator();
-        PackOutput packOutput = gen.getPackOutput();
+        var packOutput = gen.getPackOutput();
         var helper = event.getExistingFileHelper();
         gen.addProvider(event.includeClient(), new EnglishLanguageProvider(packOutput));
         gen.addProvider(event.includeClient(), new ChineseLanguageProvider(packOutput));
