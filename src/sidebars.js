@@ -33,7 +33,6 @@ const sidebars = {
             '1.19.4/preparations/README',
             '1.19.4/concepts/README',
             '1.19.4/block-item-objects/README',
-            '1.19.4/creative_mode_tab/README',
             '1.19.4/localization-with-json/README',
             '1.19.4/block-entity/README',
             '1.19.4/world-gen/README',
