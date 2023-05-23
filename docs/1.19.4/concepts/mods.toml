@@ -1,0 +1,17 @@
+modLoader="javafml" # 模组所使用的加载器，此处固定
+loaderVersion="[45,)" # 加载器版本号，通常和 Forge 的大版本号有关
+license="All rights reserved" # 模组所采用的授权协议
+
+[[mods]] # 模组本体信息
+modId="xiaozhong" # 模组 ID
+version="${file.jarVersion}" # 模组的版本号，此处固定
+authors="TeaConMC" # 模组的作者，可在此填写自己的常用名称
+displayName="Xiaozhong" # 模组名称，通常和 build.gradle 所写相同
+description="The example mod for xiaozhong" # 模组的相关介绍，可以多行
+
+[[dependencies.xiaozhong]] # 模组的相关依赖，通常会写上对 Forge 版本的依赖
+modId="forge" # 相关依赖的模组 ID
+mandatory=true # 相关依赖是否为必须
+versionRange="[45,)" # 相关依赖的版本号范围
+ordering="NONE" # 相关依赖和模组本体的加载顺序，也可以是 BEFORE 或 AFTER
+side="BOTH" # 相关依赖是否一定要在玩家客户端或专用服务端出现，也可以是 CLIENT 或 SERVER

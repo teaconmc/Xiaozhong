@@ -61,6 +61,12 @@ const config = {
           {
             type: 'doc',
             position: 'right',
+            docId: '1.19.4/README',
+            label: '1.19.4',
+          },
+          {
+            type: 'doc',
+            position: 'right',
             docId: '1.18.x/README',
             label: '1.18.x',
           },

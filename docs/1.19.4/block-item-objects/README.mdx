@@ -1,0 +1,403 @@
+# 方块和物品
+
+<!-- markdownlint-disable MD033 -->
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import CodeBlock from '@theme/CodeBlock'
+import SimpleXiaozhong from '!!raw-loader!./simple/Xiaozhong.java'
+import Xiaozhong from '!!raw-loader!./xiaozhong/Xiaozhong.java'
+
+Minecraft 中不同的方块类型或物品类型对应不同的实例：方块类型对应 `Block` 类，物品类型对应 `Item` 类。开发者可直接使用这两个类构造方块类型或物品类型，也可继承它们，实现自己的方块类或物品类。
+
+一个值得注意的物品类是 `BlockItem` 类：它是 `Item` 的子类，用于代表方块对应的物品。`BlockItem` 实现了作为方块的物品需要实现的特性——右键放置方块，因此在声明 `Block` 时通常会一并声明其对应的 `BlockItem`。
+
+## 方块和物品属性
+
+`Block` 和 `Item` 的构造方法均需传入相应的 `Properties`（方块是 `BlockBehavior.Properties`，物品是 `Item.Properties`）。方块的 `Properties` 需要指定方块的[材料](https://minecraft.fandom.com/zh/wiki/%E6%9D%90%E6%96%99)——方块的核心属性。方块的 `Properties` 有一些额外的方法可以指定方块本身的[硬度](https://minecraft.fandom.com/zh/wiki/%E6%8C%96%E6%8E%98#.E6.96.B9.E5.9D.97.E7.A1.AC.E5.BA.A6)及[爆炸抗性](https://minecraft.fandom.com/zh/wiki/%E7%88%86%E7%82%B8#.E7.88.86.E7.82.B8.E6.8A.97.E6.80.A7)（`strength`）、是否可徒手破坏掉落（`requiresCorrectToolForDrops`）、亮度（`lightLevel`）等。物品的 `Properties` 有一些额外方法可以指定物品的最大堆叠（`stacksTo`）、合成后剩余的物品（`craftRemainder`）等。
+
+```java
+// 一个普通的物品
+var item = new Item(new Item.Properties());
+// 一个材料为「石头」，需要特定工具挖掘掉落，且方块硬度为 2，爆炸抗性为 1.5 的方块
+var block = new Block(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(2F, 1.5F));
+// 一个与上述方块对应的物品
+var blockItem = new BlockItem(block, new Item.Properties());
+```
+
+:::tip
+
+可以通过查看 `Blocks` 及 `Items` 类（注意类名最后的 `s`）了解原版方块及物品的相关属性。
+
+:::
+
+## 注册系统
+
+无论是方块还是物品均被 Forge 的注册系统托管。Forge 为多种游戏元素托管了注册系统，它们均可在 `ForgeRegistries` 下找到：方块的注册系统对应 `ForgeRegistries.BLOCKS`，而物品的注册系统对应 `ForgeRegistries.ITEMS`。
+
+Forge 为我们提供了 `DeferredRegister` 方便我们向 Forge 的注册系统注册游戏元素：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// 为 xiaozhong 命名空间注册物品
+public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "xiaozhong");
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{17}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{SimpleXiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+`DeferredRegister` 有两个名为 `register` 的重载方法。一个需传入游戏元素的 ID 和相应的 `Supplier`，用于注册相应的实例：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// xiaozhong:sulfur_dust 对应的物品
+public static final String SULFUR_DUST_ID = "sulfur_dust";
+public static final RegistryObject<Item> SULFUR_DUST_ITEM;
+
+// 注册物品实例
+SULFUR_DUST_ITEM = ITEMS.register(SULFUR_DUST_ID,
+        () -> new Item(new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{20-21,28-29}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{SimpleXiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+:::info
+
+`RegistryObject` 储存着游戏元素的实例——该实例可通过 `get` 方法获得。建议将物品和方块对应的 `RegistryObject` 以静态字段的方式声明。
+
+:::
+
+`DeferredRegister` 的另一个 `register` 方法需传入 `IEventBus`，用于完成具体的注册（通常在主类的构造方法调用）：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// 注册所有物品
+ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{37}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{SimpleXiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+:::info
+
+将 `IEventBus` 传入 `register` 方法本质上是为注册事件添加监听器——相应的注册事件触发后整个注册流程才会完成。
+
+:::
+
+我们再注册方块和方块对应的 `BlockItem` 物品：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// 为 xiaozhong 命名空间注册方块
+public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "xiaozhong");
+
+// xiaozhong:sulfur_block 对应的方块和物品
+public static final String SULFUR_BLOCK_ID = "sulfur_block";
+public static final RegistryObject<Block> SULFUR_BLOCK;
+public static final RegistryObject<BlockItem> SULFUR_BLOCK_ITEM;
+
+// 注册方块实例和方块对应的物品实例，注意 BlockItem 的注册
+SULFUR_BLOCK = BLOCKS.register(SULFUR_BLOCK_ID,
+        () -> new Block(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(2F, 1.5F)));
+SULFUR_BLOCK_ITEM = ITEMS.register(SULFUR_BLOCK_ID,
+        () -> new BlockItem(SULFUR_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS)));
+
+// 注册所有方块
+BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{18,23-25,30-33,38}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{SimpleXiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+:::tip
+
+在游戏中使用 `/give @s [模组 ID]:[物品 ID]` 即可拿到物品，如使用 `/give @s xiaozhong:sulfur_dust` 和 `/give @s xiaozhong:sulfur_block` 等。
+
+:::
+
+## 语言文件
+
+仅需在 `LanguageProvider` 的 `add` 方法传入对应的 `Block` 或 `Item` 实例即可。Minecraft 会自动读取对应的翻译标识符。
+
+以下为示例：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// 向 Data Generator 添加 DataProvider
+FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
+
+public static void onGatherData(GatherDataEvent event) {
+    var gen = event.getGenerator();
+    var packOutput = gen.getPackOutput();
+    var helper = event.getExistingFileHelper();
+    gen.addProvider(event.includeClient(), new EnglishLanguageProvider(packOutput));
+    gen.addProvider(event.includeClient(), new ChineseLanguageProvider(packOutput));
+}
+
+// 英文语言文件
+public static class EnglishLanguageProvider extends LanguageProvider {
+    // ...
+
+    @Override
+    protected void addTranslations() {
+        // 等价于 this.add("item.xiaozhong.sulfur_dust", "Sulfur Dust")
+        this.add(SULFUR_DUST_ITEM.get(), "Sulfur Dust");
+        // 等价于 this.add("block.xiaozhong.sulfur_block", "Sulfur Block")
+        this.add(SULFUR_BLOCK.get(), "Sulfur Block");
+    }
+}
+
+// 中文语言文件
+public static class ChineseLanguageProvider extends LanguageProvider {
+    // ...
+
+    @Override
+    protected void addTranslations() {
+        // 等价于 this.add("item.xiaozhong.sulfur_dust", "硫粉")
+        this.add(SULFUR_DUST_ITEM.get(), "硫粉");
+        // 等价于 this.add("block.xiaozhong.sulfur_block", "硫磺块")
+        this.add(SULFUR_BLOCK.get(), "硫磺块");
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{63,66-67,69-70,74,76-86,88-98}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+## 模型文件
+
+物品模型通常直接和物品 ID 关联，由位于 `[模组 ID]:item/[物品 ID]` 处的模型文件定义。但对方块模型而言，由于方块存在不同的[方块状态](https://minecraft.fandom.com/zh/wiki/%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81)，因此需要在 `[模组 ID]:[方块 ID]` 处声明对应的方块状态文件，再在方块状态文件里声明模型位置。
+
+幸运的是，无论是模型文件还是方块状态文件均可使用 Data Generator 生成。唯一不能生成的只有纹理——模组开发者需要把纹理放到 `src/main/resources` 下相应的位置。
+
+:::tip
+
+对于常用的方块模型，Data Generator 提供了非常多的预设。当然，模组开发者也可以制作自己的丰富多彩的模型。对 Minecraft 而言，常见的模型制作工具有 Blockbench 等。Blockbench 可在 https://www.blockbench.net/ 下载。
+
+:::
+
+此处展示如何生成最简单的方块模型及物品模型：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// 向 Data Generator 添加 DataProvider
+FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
+
+public static void onGatherData(GatherDataEvent event) {
+    // ...
+    // 添加模型文件的 DataProvider
+    gen.addProvider(event.includeClient(), new ModelProvider(packOutput, helper));
+    gen.addProvider(event.includeClient(), new StateProvider(packOutput, helper));
+}
+
+// 物品模型文件
+public static class ModelProvider extends ItemModelProvider {
+    public ModelProvider(PackOutput gen, ExistingFileHelper helper) {
+        super(gen, "xiaozhong", helper);
+    }
+
+    @Override
+    protected void registerModels() {
+        // 第一个参数为模型对应的物品 ID，此示例为 sulfur_dust，因此在 xiaozhong:item/sulfur_dust 处生成模型文件
+        // 第二个参数为父模型，一般物品的父模型均为 minecraft:item/generated，此处简写为 new ResourceLocation("item/generated")
+        // 第三个参数及第四个参数为纹理名称及位置，对于当前父模型而言需要指定 layer0 对应的纹理名称，此处为 xiaozhong:item/sulfur_dust
+        this.singleTexture(SULFUR_DUST_ID, new ResourceLocation("item/generated"), "layer0", new ResourceLocation("xiaozhong", "item/" + SULFUR_DUST_ID));
+    }
+}
+
+// 方块状态文件及方块模型文件
+public static class StateProvider extends BlockStateProvider {
+    public StateProvider(PackOutput gen, ExistingFileHelper helper) {
+        super(gen, "xiaozhong", helper);
+    }
+
+    @Override
+    protected void registerStatesAndModels() {
+        // 此处生成方块状态文件和方块模型文件
+        // 第一个参数为模型对应的方块，对应的方块状态文件会在 xiaozhong:sulfur 自动生成
+        // 第二个参数为模型，对应的模型文件会在 xiaozhong:block/sulfur_block 处自动生成
+        // 自动生成的模型文件中，父模型为 minecraft:block/cube_all，并引用 xiaozhong:block/sulfur_block 处的纹理
+        this.simpleBlock(SULFUR_BLOCK.get(), this.cubeAll(SULFUR_BLOCK.get()));
+        // 此处生成方块对应物品的模型文件
+        // 第一个参数为模型对应的方块，对应的模型文件会在 xiaozhong:item/sulfur_block 自动生成，并继承第二个参数代表的模型
+        this.simpleBlockItem(SULFUR_BLOCK.get(), this.cubeAll(SULFUR_BLOCK.get()));
+        /*
+        // 如欲使用自行添加的位于 foo:bar 的模型文件，第二个参数请通过 getExistingFile 方法生成：
+        this.simpleBlock(SULFUR_BLOCK.get(), this.models().getExistingFile(new ResourceLocation("foo", "bar")));
+        this.simpleBlockItem(SULFUR_BLOCK.get(), this.models().getExistingFile(new ResourceLocation("foo", "bar")));
+        */
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{63,66-68,71-72,74,100-109,111-121}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+## 纹理资源
+
+如果此时启动 `runData`，那么大概率会有如下报错产生：
+
+> `Caused by: java.lang.IllegalArgumentException: Texture xiaozhong:item/sulfur_dust does not exist in any known resource pack`
+
+这是因为物品对应的 `xiaozhong:item/sulfur_dust` 亦即 `assets/xiaozhong/textures/item/sulfur_dust` 处尚无纹理文件存在。我们只需在 `xiaozhong:item/sulfur_dust` 处添加纹理即可——方块对应的 `xiaozhong:block/sulfur_block` 处的纹理同理。
+
+以下是 `xiaozhong:item/sulfur_dust` 和 `xiaozhong:block/sulfur_block` 的纹理示意：
+
+<Tabs>
+<TabItem value="xiaozhong:item/sulfur_dust" label="sulfur_dust.png">
+
+![sulfur-dust-texture](sulfur-dust-texture.png)
+
+</TabItem>
+<TabItem value="xiaozhong:block/sulfur_block" label="sulfur_block.png">
+
+![sulfur-block-texture](sulfur-block-texture.png)
+
+</TabItem>
+</Tabs>
+
+:::info
+
+为保证不同放缩比例下玩家的游戏体验，建议使用长宽均为 16 的像素风格纹理。
+
+:::
+
+:::tip
+
+纹理既可在 Blockbench 中直接修改，也可使用 GIMP（GNU Image Manipulation Program）等专业图像处理软件处理。GIMP 可在 <https://www.gimp.org/> 下载。
+
+:::
+
+以下是游戏内效果：
+
+![block-item-example](block-item-example.png)
+
+## 方块掉落物
+
+目前的方块无法使用任何工具掉落任何物品，这是因为我们尚未指定方块的战利品表。
+
+此处展示如何指定方块的战利品表：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// 向 Data Generator 添加 DataProvider
+FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
+
+public static void onGatherData(GatherDataEvent event) {
+    // ...
+    // 添加战利品表的 DataProvider
+    gen.addProvider(event.includeServer(), new LootProvider(packOutput));
+}
+
+// 战利品表
+public static class LootProvider extends LootTableProvider {
+    public LootProvider(PackOutput gen) {
+        super(gen, Set.of(SULFUR_BLOCK.getId()), List.of(new SubProviderEntry(CustomBlockLoot::new, LootContextParamSets.BLOCK)));
+    }
+
+    @Override
+    protected void validate(Map<ResourceLocation, LootTable> map, @Nonnull ValidationContext context) {
+        // 模组自定义的战利品表 DataProvider 必须覆盖此方法，以绕过对原版战利品表的检查
+        map.forEach((key, value) -> LootTables.validate(context, key, value));
+    }
+}
+
+// 方块战利品表
+public static class CustomBlockLoot extends BlockLootSubProvider {
+    protected CustomBlockLoot() {
+        super(Set.of(), FeatureFlags.REGISTRY.allFlags());
+    }
+
+    @Override
+    protected void generate() {
+        // 此处添加 xiaozhong:sulfur_block 处的战利品表，意为掉落自身对应物品一个
+        this.dropSelf(SULFUR_BLOCK.get());
+        /*
+        // 如欲在非精准采集的情况下掉落九个 xiaozhong:sulfur_dust，请使用以下代码：
+        this.add(SULFUR_BLOCK.get(), block -> createSingleItemTableWithSilkTouch(block, SULFUR_DUST_ITEM.get(), ConstantValue.exactly(9f)));
+        */
+    }
+
+    @Nonnull
+    @Override
+    protected Iterable<Block> getKnownBlocks() {
+        // 模组自定义的方块战利品表必须覆盖此方法，以绕过对原版方块战利品表的检查（此处返回该模组的所有方块）
+        return Iterables.transform(BLOCKS.getEntries(), RegistryObject::get);
+    }
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{63,66-68,73-74,123-138,140-151}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
+</TabItem>
+</Tabs>
+
+## 创造模式物品栏
+
+import CTM from '!!raw-loader!./creativemodetab/Xiaozhong.java'
+
+[创造模式物品栏](https://minecraft.fandom.com/zh/wiki/%E7%89%A9%E5%93%81%E6%A0%8F#%E5%88%9B%E9%80%A0%E6%A8%A1%E5%BC%8F%E7%89%A9%E5%93%81%E6%A0%8F)是一些物品的集合，并且如他的名字一样只在创造模式出现。
+
+在 1.19，tab 不再是 `Item` 侧进行设置，改为了使用 builder 的方式构建一个 `CreativeModeTab`：
+
+<Tabs>
+<TabItem value="core" label="核心代码">
+
+```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
+// 此处仅展示如何添加物品，builder 内有更多方法需要读者自行查看
+public static void registerCreativeModeTab(CreativeModeTabEvent.Register event) {
+    event.registerCreativeModeTab(new ResourceLocation("xiaozhong", "main_tab"), builder ->
+        builder.displayItems((parameters, output) -> {
+            output.accept(SULFUR_DUST_ITEM.get());
+            output.accept(SULFUR_BLOCK_ITEM.get());
+        }));
+}
+```
+
+</TabItem>
+<TabItem value="full" label="完整代码">
+    <CodeBlock language="java" metastring="{63,66-68,73-74,123-138,140-151}" showLineNumbers
+               title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{CTM}</CodeBlock>
+</TabItem>
+</Tabs>
