@@ -59,15 +59,13 @@ const config = {
         title: '正山小种 - Forge 模组开发指南',
         items: [
           {
-            type: 'doc',
             position: 'right',
-            docId: '1.19.x/README',
+            to: '1.19.x',
             label: '1.19.x',
           },
           {
-            type: 'doc',
             position: 'right',
-            docId: '1.18.x/README',
+            to: '1.18.x',
             label: '1.18.x',
           },
           {
