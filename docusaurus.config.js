@@ -29,7 +29,7 @@ const config = {
           routeBasePath: '/',
           sidebarPath: require.resolve('./src/sidebars.js'),
           editUrl({ docPath }) {
-            return 'https://github.com/teaconmc/Xiaozhong/blob/1.18-forge/docs/' + docPath
+            return 'https://github.com/teaconmc/Xiaozhong/blob/1.19-forge/docs/' + docPath
           }
         },
         theme: {
@@ -61,8 +61,8 @@ const config = {
           {
             type: 'doc',
             position: 'right',
-            docId: '1.19.4/README',
-            label: '1.19.4',
+            docId: '1.19.x/README',
+            label: '1.19.x',
           },
           {
             type: 'doc',
@@ -80,7 +80,7 @@ const config = {
       footer: {
         style: 'dark',
         copyright: ''.concat(
-          `Copyright ©${new Date().getFullYear()} TeaCon 执行委员会`, ` | `,
+          `Copyright ©2022-${Math.min(2023, new Date().getFullYear())} TeaCon 执行委员会`, ` | `,
           `<a href="https://beian.miit.gov.cn/" style="color:var(--ifm-footer-color)">闽ICP备20015816号</a>`,
         ),
       },

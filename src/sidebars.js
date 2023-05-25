@@ -20,22 +20,22 @@ const sidebars = {
             '1.18.x/world-gen/README',
         ],
     }],
-    '1.19.4': [{
+    '1.19.x': [{
         type: 'category',
-        label: '正山小种 - 1.19.4',
+        label: '正山小种 - 1.19.x',
         collapsed: false,
         collapsible: false,
         link: {
             type: 'doc',
-            id: '1.19.4/README'
+            id: '1.19.x/README'
         },
         items: [
-            '1.19.4/preparations/README',
-            '1.19.4/concepts/README',
-            '1.19.4/block-item-objects/README',
-            '1.19.4/localization-with-json/README',
-            '1.19.4/block-entity/README',
-            '1.19.4/world-gen/README',
+            '1.19.x/preparations/README',
+            '1.19.x/concepts/README',
+            '1.19.x/block-item-objects/README',
+            '1.19.x/localization-with-json/README',
+            '1.19.x/block-entity/README',
+            '1.19.x/world-gen/README',
         ],
     }],
 };
