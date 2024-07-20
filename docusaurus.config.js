@@ -29,7 +29,7 @@ const config = {
           routeBasePath: '/',
           sidebarPath: require.resolve('./src/sidebars.js'),
           editUrl({ docPath }) {
-            return 'https://github.com/teaconmc/Xiaozhong/blob/1.19-forge/docs/' + docPath
+            return 'https://github.com/teaconmc/Xiaozhong/blob/1.21-neoforge/docs/' + docPath
           }
         },
         theme: {
@@ -60,13 +60,18 @@ const config = {
         items: [
           {
             position: 'right',
+            to: '1.21-neoforge',
+            label: '1.21-NeoForge',
+          },
+          {
+            position: 'right',
             to: '1.19.x',
-            label: '1.19.x',
+            label: '1.19.x-Forge',
           },
           {
             position: 'right',
             to: '1.18.x',
-            label: '1.18.x',
+            label: '1.18.x-Forge',
           },
           {
             position: 'right',
