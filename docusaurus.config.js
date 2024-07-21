@@ -5,8 +5,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: '正山小种 - Forge 模组开发指南',
-  tagline: '一篇以尽可能简洁的篇幅带领 Minecraft 玩家入门的 Forge 模组开发指南',
+  title: '正山小种 - Minecraft 模组开发指南',
+  tagline: '一篇以尽可能简洁的篇幅带领 Minecraft 玩家入门的 Minecraft 模组开发指南',
   url: 'https://www.teacon.cn/',
 
   trailingSlash: false,
