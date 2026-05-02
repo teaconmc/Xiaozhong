@@ -1,7 +1,5 @@
 # 方块和物品
 
-<!-- markdownlint-disable MD033 -->
-
 import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import CodeBlock from '@theme/CodeBlock'
@@ -14,13 +12,15 @@ Minecraft 中不同的方块类型或物品类型对应不同的实例：方块�
 
 ## 方块和物品属性
 
-`Block` 和 `Item` 的构造方法均需传入相应的 `Properties`（方块是 `BlockBehavior.Properties`，物品是 `Item.Properties`）。方块的 `Properties` 需要指定方块的[材料](https://minecraft.fandom.com/zh/wiki/%E6%9D%90%E6%96%99)——方块的核心属性。方块的 `Properties` 有一些额外的方法可以指定方块本身的[硬度](https://minecraft.fandom.com/zh/wiki/%E6%8C%96%E6%8E%98#.E6.96.B9.E5.9D.97.E7.A1.AC.E5.BA.A6)及[爆炸抗性](https://minecraft.fandom.com/zh/wiki/%E7%88%86%E7%82%B8#.E7.88.86.E7.82.B8.E6.8A.97.E6.80.A7)（`strength`）、是否可徒手破坏掉落（`requiresCorrectToolForDrops`）、亮度（`lightLevel`）等。物品的 `Properties` 有一些额外方法可以指定物品的最大堆叠（`stacksTo`）、合成后剩余的物品（`craftRemainder`）等。
+`Block` 和 `Item` 的构造方法均需传入相应的 `Properties`（方块是 `BlockBehavior.Properties`，物品是 `Item.Properties`）。
+
+你可以通过方块的 `Properties` 来指定方块本身的[硬度](https://zh.minecraft.wiki/w/%E6%8C%96%E6%8E%98#.E6.96.B9.E5.9D.97.E7.A1.AC.E5.BA.A6)及[爆炸抗性](https://zh.minecraft.wiki/w/%E7%88%86%E7%82%B8#.E7.88.86.E7.82.B8.E6.8A.97.E6.80.A7)（`strength`）、是否可徒手破坏掉落（`requiresCorrectToolForDrops`）、亮度（`lightLevel`）等。物品的 `Properties` 有一些额外方法可以指定物品的最大堆叠（`stacksTo`）、合成后剩余的物品（`craftRemainder`）等。
 
 ```java
 // 一个普通的物品
 var item = new Item(new Item.Properties());
-// 一个材料为「石头」，需要特定工具挖掘掉落，且方块硬度为 2，爆炸抗性为 1.5 的方块
-var block = new Block(BlockBehaviour.Properties.of(Material.STONE).requiresCorrectToolForDrops().strength(2F, 1.5F));
+// 一个属性和原版石头一致，但需要特定工具挖掘掉落，且方块硬度为 2，爆炸抗性为 1.5 的方块
+var block = new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE).requiresCorrectToolForDrops().strength(2F, 1.5F));
 // 一个与上述方块对应的物品
 var blockItem = new BlockItem(block, new Item.Properties());
 ```
@@ -33,21 +33,21 @@ var blockItem = new BlockItem(block, new Item.Properties());
 
 ## 注册系统
 
-无论是方块还是物品均被 Forge 的注册系统托管。Forge 为多种游戏元素托管了注册系统，它们均可在 `ForgeRegistries` 下找到：方块的注册系统对应 `ForgeRegistries.BLOCKS`，而物品的注册系统对应 `ForgeRegistries.ITEMS`。
+NeoForge 并未接管原版的注册表，因此我们应使用原版注册表注册新游戏元素，然而该过程极易出错。
 
-Forge 为我们提供了 `DeferredRegister` 方便我们向 Forge 的注册系统注册游戏元素：
+NeoForge 为我们提供了 `DeferredRegister` 方便我们向 Minecraft 中注册游戏元素。在此基础上，NeoForge 还提供了快速创建方块和物品的 `DeferredRegister` 的方式，在此我们将展示如何使用。
 
 <Tabs>
 <TabItem value="core" label="核心代码">
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 为 xiaozhong 命名空间注册物品
-public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "xiaozhong");
+public static final DeferredRegister<Item> ITEMS = DeferredRegister.Items.createItems("xiaozhong");
 ```
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{17}" showLineNumbers
+    <CodeBlock language="java" metastring="{15}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{SimpleXiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -60,23 +60,23 @@ public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Forge
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // xiaozhong:sulfur_dust 对应的物品
 public static final String SULFUR_DUST_ID = "sulfur_dust";
-public static final RegistryObject<Item> SULFUR_DUST_ITEM;
+public static final DeferredHolder<Item, Item> SULFUR_DUST_ITEM;
 
 // 注册物品实例
 SULFUR_DUST_ITEM = ITEMS.register(SULFUR_DUST_ID,
-        () -> new Item(new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
+        () -> new Item(new Item.Properties()));
 ```
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{20-21,28-29}" showLineNumbers
+    <CodeBlock language="java" metastring="{18-19,26-27}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{SimpleXiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
 
 :::info
 
-`RegistryObject` 储存着游戏元素的实例——该实例可通过 `get` 方法获得。建议将物品和方块对应的 `RegistryObject` 以静态字段的方式声明。
+`DeferredHolder` 储存着游戏元素的实例——该实例可通过 `get` 方法获得。建议将物品和方块对应的 `DeferredHolder` 以静态字段的方式声明。
 
 :::
 
@@ -87,12 +87,12 @@ SULFUR_DUST_ITEM = ITEMS.register(SULFUR_DUST_ID,
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 注册所有物品
-ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+ITEMS.register(modEventBus);
 ```
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{37}" showLineNumbers
+    <CodeBlock language="java" metastring="{35}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{SimpleXiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -110,12 +110,12 @@ ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 为 xiaozhong 命名空间注册方块
-public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "xiaozhong");
+public static final DeferredRegister<Block> BLOCKS = DeferredRegister.Blocks.create("xiaozhong");
 
 // xiaozhong:sulfur_block 对应的方块和物品
 public static final String SULFUR_BLOCK_ID = "sulfur_block";
-public static final RegistryObject<Block> SULFUR_BLOCK;
-public static final RegistryObject<BlockItem> SULFUR_BLOCK_ITEM;
+public static final DeferredHolder<Block, Block> SULFUR_BLOCK;
+public static final DeferredHolder<Item, BlockItem> SULFUR_BLOCK_ITEM;
 
 // 注册方块实例和方块对应的物品实例，注意 BlockItem 的注册
 SULFUR_BLOCK = BLOCKS.register(SULFUR_BLOCK_ID,
@@ -124,12 +124,12 @@ SULFUR_BLOCK_ITEM = ITEMS.register(SULFUR_BLOCK_ID,
         () -> new BlockItem(SULFUR_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS)));
 
 // 注册所有方块
-BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+BLOCKS.register(modEventBus);
 ```
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{18,23-25,30-33,38}" showLineNumbers
+    <CodeBlock language="java" metastring="{16,21-23,28-31,36}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{SimpleXiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -151,14 +151,11 @@ BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 向 Data Generator 添加 DataProvider
-FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
+modEventBus.addListener(Xiaozhong::onGatherData);
 
-public static void onGatherData(GatherDataEvent event) {
-    var gen = event.getGenerator();
-    var packOutput = gen.getPackOutput();
-    var helper = event.getExistingFileHelper();
-    gen.addProvider(event.includeClient(), new EnglishLanguageProvider(packOutput));
-    gen.addProvider(event.includeClient(), new ChineseLanguageProvider(packOutput));
+public static void onGatherData(GatherDataEvent.Client event) {
+    event.createProvider(EnglishLanguageProvider::new);
+    event.createProvider(ChineseLanguageProvider::new);
 }
 
 // 英文语言文件
@@ -190,7 +187,7 @@ public static class ChineseLanguageProvider extends LanguageProvider {
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{63,66-67,69-70,74,76-86,88-98}" showLineNumbers
+    <CodeBlock language="java" metastring="{59,62-64,67-68,72,74-84,86-96}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -214,58 +211,34 @@ public static class ChineseLanguageProvider extends LanguageProvider {
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 向 Data Generator 添加 DataProvider
-FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
+modEventBus.addListener(Xiaozhong::onGatherData);
 
-public static void onGatherData(GatherDataEvent event) {
+public static void onGatherData(GatherDataEvent.Client event) {
     // ...
     // 添加模型文件的 DataProvider
-    gen.addProvider(event.includeClient(), new ModelProvider(packOutput, helper));
-    gen.addProvider(event.includeClient(), new StateProvider(packOutput, helper));
+    event.createProvider(ModelAndBlockStateProvider::new);
 }
 
-// 物品模型文件
-public static class ModelProvider extends ItemModelProvider {
-    public ModelProvider(PackOutput gen, ExistingFileHelper helper) {
-        super(gen, "xiaozhong", helper);
+// 物品、方块模型文件，及 BlockState 映射表 JSON
+public static class ModelAndBlockStateProvider extends ModelProvider {
+    public ModelAndBlockStateProvider(PackOutput gen) {
+        super(gen, "xiaozhong");
     }
 
     @Override
-    protected void registerModels() {
-        // 第一个参数为模型对应的物品 ID，此示例为 sulfur_dust，因此在 xiaozhong:item/sulfur_dust 处生成模型文件
-        // 第二个参数为父模型，一般物品的父模型均为 minecraft:item/generated，此处简写为 new ResourceLocation("item/generated")
-        // 第三个参数及第四个参数为纹理名称及位置，对于当前父模型而言需要指定 layer0 对应的纹理名称，此处为 xiaozhong:item/sulfur_dust
-        this.singleTexture(SULFUR_DUST_ID, new ResourceLocation("item/generated"), "layer0", new ResourceLocation("xiaozhong", "item/" + SULFUR_DUST_ID));
-    }
-}
+    protected void registerModels(BlockModelGenerators blockModelGenerators, ItemModelGenerators itemModelGenerators) {
+        // 调用此方法生成简单物品的模型 JSON。
+        itemModelGenerators.generateFlatItem(SULFUR_DUST_ITEM.get(), ModelTemplates.FLAT_ITEM);
 
-// 方块状态文件及方块模型文件
-public static class StateProvider extends BlockStateProvider {
-    public StateProvider(PackOutput gen, ExistingFileHelper helper) {
-        super(gen, "xiaozhong", helper);
-    }
-
-    @Override
-    protected void registerStatesAndModels() {
-        // 此处生成方块状态文件和方块模型文件
-        // 第一个参数为模型对应的方块，对应的方块状态文件会在 xiaozhong:sulfur 自动生成
-        // 第二个参数为模型，对应的模型文件会在 xiaozhong:block/sulfur_block 处自动生成
-        // 自动生成的模型文件中，父模型为 minecraft:block/cube_all，并引用 xiaozhong:block/sulfur_block 处的纹理
-        this.simpleBlock(SULFUR_BLOCK.get(), this.cubeAll(SULFUR_BLOCK.get()));
-        // 此处生成方块对应物品的模型文件
-        // 第一个参数为模型对应的方块，对应的模型文件会在 xiaozhong:item/sulfur_block 自动生成，并继承第二个参数代表的模型
-        this.simpleBlockItem(SULFUR_BLOCK.get(), this.cubeAll(SULFUR_BLOCK.get()));
-        /*
-        // 如欲使用自行添加的位于 foo:bar 的模型文件，第二个参数请通过 getExistingFile 方法生成：
-        this.simpleBlock(SULFUR_BLOCK.get(), this.models().getExistingFile(new ResourceLocation("foo", "bar")));
-        this.simpleBlockItem(SULFUR_BLOCK.get(), this.models().getExistingFile(new ResourceLocation("foo", "bar")));
-        */
+        // 因为我们的硫磺块六个面使用同一张贴图，我们仅需这一次调用就可以搞定 blockstate json 和 model json。
+        blockModelGenerators.createTrivialCube(SULFUR_BLOCK.get());
     }
 }
 ```
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{63,66-68,71-72,74,100-109,111-121}" showLineNumbers
+    <CodeBlock language="java" metastring="{59,62-65,69-70,72,98-107,109-119}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -320,31 +293,20 @@ public static class StateProvider extends BlockStateProvider {
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
 // 向 Data Generator 添加 DataProvider
-FMLJavaModLoadingContext.get().getModEventBus().addListener(Xiaozhong::onGatherData);
+modEventBus.addListener(Xiaozhong::onGatherData);
 
-public static void onGatherData(GatherDataEvent event) {
+public static void onGatherData(GatherDataEvent.Client event) {
     // ...
-    // 添加战利品表的 DataProvider
-    gen.addProvider(event.includeServer(), new LootProvider(packOutput));
-}
-
-// 战利品表
-public static class LootProvider extends LootTableProvider {
-    public LootProvider(PackOutput gen) {
-        super(gen, Set.of(SULFUR_BLOCK.getId()), List.of(new SubProviderEntry(CustomBlockLoot::new, LootContextParamSets.BLOCK)));
-    }
-
-    @Override
-    protected void validate(Map<ResourceLocation, LootTable> map, @Nonnull ValidationContext context) {
-        // 模组自定义的战利品表 DataProvider 必须覆盖此方法，以绕过对原版战利品表的检查
-        map.forEach((key, value) -> LootTables.validate(context, key, value));
-    }
+    event.createProvider((output, lookupProvider) -> new LootTableProvider(
+        output, Set.of(),
+        List.of(new LootTableProvider.SubProviderEntry(CustomBlockLoot::new, LootContextParamSets.EMPTY)),
+        lookupProvider));
 }
 
 // 方块战利品表
 public static class CustomBlockLoot extends BlockLootSubProvider {
-    protected CustomBlockLoot() {
-        super(Set.of(), FeatureFlags.REGISTRY.allFlags());
+    protected CustomBlockLoot(HolderLookup.Provider lookupProvider) {
+        super(Set.of(), FeatureFlags.REGISTRY.allFlags(), lookupProvider);
     }
 
     @Override
@@ -361,14 +323,14 @@ public static class CustomBlockLoot extends BlockLootSubProvider {
     @Override
     protected Iterable<Block> getKnownBlocks() {
         // 模组自定义的方块战利品表必须覆盖此方法，以绕过对原版方块战利品表的检查（此处返回该模组的所有方块）
-        return Iterables.transform(BLOCKS.getEntries(), RegistryObject::get);
+        return Iterables.transform(BLOCKS.getEntries(), DeferredHolder::get);
     }
 }
 ```
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{63,66-68,73-74,123-138,140-151}" showLineNumbers
+    <CodeBlock language="java" metastring="{59,62-63,66,71-72,121-131,133-148}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{Xiaozhong}</CodeBlock>
 </TabItem>
 </Tabs>
@@ -377,27 +339,40 @@ public static class CustomBlockLoot extends BlockLootSubProvider {
 
 import CTM from '!!raw-loader!./creativemodetab/Xiaozhong.java'
 
-[创造模式物品栏](https://minecraft.fandom.com/zh/wiki/%E7%89%A9%E5%93%81%E6%A0%8F#%E5%88%9B%E9%80%A0%E6%A8%A1%E5%BC%8F%E7%89%A9%E5%93%81%E6%A0%8F)是一些物品的集合，并且如他的名字一样只在创造模式出现。
+[创造模式物品栏](https://zh.minecraft.wiki/w/%E7%89%A9%E5%93%81%E6%A0%8F#%E5%88%9B%E9%80%A0%E6%A8%A1%E5%BC%8F%E7%89%A9%E5%93%81%E6%A0%8F)是一些物品的集合，并且如他的名字一样只在创造模式出现。
 
-在 1.19，tab 不再是 `Item` 侧进行设置，改为了使用 builder 的方式构建一个 `CreativeModeTab`：
+在 1.21 中，标签页需要通过注册表注册。我们可以通过 `DeferredRegister` 注册新标签页，并通过 NeoForge 提供的 `BuildCreativeModeTabContentsEvent` 事件来将我们的新方块和物品放入其中：
 
 <Tabs>
 <TabItem value="core" label="核心代码">
 
 ```java title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java"
-// 此处仅展示如何添加物品，builder 内有更多方法需要读者自行查看
-public static void registerCreativeModeTab(CreativeModeTabEvent.Register event) {
-    event.registerCreativeModeTab(new ResourceLocation("xiaozhong", "main_tab"), builder ->
-        builder.displayItems((parameters, output) -> {
-            output.accept(SULFUR_DUST_ITEM.get());
-            output.accept(SULFUR_BLOCK_ITEM.get());
-        }));
+// 创建创造模式标签页的 DeferredRegister
+public static DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, "xiaozhong");
+
+public static final String MAIN_TAB_ID = "main_tab";
+public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB;
+
+// 注册新标签页，并设置标签图标
+MAIN_TAB = TABS.register(MAIN_TAB_ID,
+        () -> CreativeModeTab.builder().icon(() -> new ItemStack(SULFUR_DUST_ITEM)).build());
+
+// 将 DeferredRegister 注册入事件总线
+TABS.register(modEventBus);
+// 订阅 BuildCreativeModeTabContentsEvent 事件以填充标签页内容
+modEventBus.addListener(Xiaozhong::buildCreativeTabContent);
+
+public static void buildCreativeTabContent(BuildCreativeModeTabContentsEvent event) {
+    if (event.getTab() == MAIN_TAB.get()) {
+        event.accept(SULFUR_DUST_ITEM.get());
+        event.accept(SULFUR_BLOCK_ITEM.get());
+    }
 }
 ```
 
 </TabItem>
 <TabItem value="full" label="完整代码">
-    <CodeBlock language="java" metastring="{63,66-68,73-74,123-138,140-151}" showLineNumbers
+    <CodeBlock language="java" metastring="{21,30-31,40-41,47-48,51-56}" showLineNumbers
                title="src/main/java/org/teacon/xiaozhong/Xiaozhong.java">{CTM}</CodeBlock>
 </TabItem>
 </Tabs>

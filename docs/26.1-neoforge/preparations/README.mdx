@@ -1,19 +1,16 @@
 # 准备工作
 
-<!-- markdownlint-disable MD033 -->
-
 import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import CodeBlock from '@theme/CodeBlock'
 import GradleProperties from '!!raw-loader!./gradle.properties'
 
-除去必要的硬件条件外，读者需要从 https://github.com/NeoForgeMDKs/MDK-1.21-ModDevGradle 下载模组开发套件（Mod Development Kit，简称 MDK）。
+除去必要的硬件条件外，读者需要从 https://neoforged.net/mod-generator/ 下载模组开发套件（Mod Development Kit，简称 MDK）。
 
-
-如果你下载的是形如 `MDK-1.21-ModDevGradle-main.zip` 的完整文件，那么恭喜你，下载成功了：找个合适的地方解压这个压缩包吧。
+如果你下载的是形如 `examplemod-template-26.1.zip` 的完整文件，那么恭喜你，下载成功了：找个合适的地方解压这个压缩包吧。
 
 :::tip
-下载 MDK 有困难的读者可以考虑[点这里](./MDK-1.21-ModDevGradle-main.zip)下载。
+下载 MDK 有困难的读者可以考虑[点这里](./xiaozhong-template-26.1.zip)下载。
 :::
 
 ## 模组 ID
@@ -46,25 +43,18 @@ NeoForge MDK 的配置文件是 `build.gradle` 和 `gradle.properties`。
 <TabItem value="core" label="核心代码">
 
 ```properties title="gradle.properties"
-# Minecraft 官方对源代码编译后进行了混淆，因此为还原方法名、字段名、类名、以及包名以方便模组开发，NeoForge MDK 需要参照一个映射表。
-# 官方映射表未包含变量名的相关数据，而一个名叫「Parchment」的项目正好填补了这一空白。
-# NeoForge MDK 默认会自动使用 Parchment 提供的数据，我们则需要在这里指定 Parchment 的版本号。
-parchment_minecraft_version=1.21
-parchment_mappings_version=2024.06.23
 # Environment Properties
 # You can find the latest versions here: https://projects.neoforged.net/neoforged/neoforge
 # The Minecraft version must agree with the Neo version to get a valid artifact
-minecraft_version=1.21
+minecraft_version=26.1
 # The Minecraft version range can use any release version of Minecraft as bounds.
 # Snapshots, pre-releases, and release candidates are not guaranteed to sort properly
 # as they do not follow standard versioning conventions.
-minecraft_version_range=[1.21,1.21.1)
+minecraft_version_range=[26.1]
 # The Neo version must agree with the Minecraft version to get a valid artifact
-neo_version=21.0.61-beta
-# The Neo version range can use any version of Neo as bounds
-neo_version_range=[21.0.61-beta,)
-# The loader version range can only use the major version of FML as bounds
-loader_version_range=[4,)
+neo_version=26.1.0.17-beta
+
+## Mod Propertie
 
 # 模组的唯一识别 ID，必须和 @Mod（后面会提到）中填入的 ID 相同。
 # 关于模组 ID 的要求，请参考上文。
@@ -81,10 +71,11 @@ mod_version=1.0.0
 # 模组的 Maven 组名，通常和包名相同。
 # 扩展阅读：https://maven.apache.org/guides/mini/guide-naming-conventions.html
 mod_group_id=org.teacon.xiaozhong
-# 模组作者列表
-mod_authors=YourNameHere, OtherNameHere
-# 模组简介。你可以使用 \n 表示换行。
-mod_description=Example mod description.\nNewline characters can be used and will be replaced properly.
+
+# ModDevGradle 插件会帮我们下载 Minecraft 并进行必要的处理，其使用的下载地址由 Mojang 原版启动器的 Launcher Meta 提供。
+# 此处我们将其重定向到 BMCLAPI。
+#neoForge.neoFormRuntime.launcherManifestUrl=https://piston-meta.mojang.com/mc/game/version_manifest_v2.json
+neoForge.neoFormRuntime.launcherManifestUrl=https://bmclapi2.bangbang93.com/mc/game/version_manifest_v2.json
 ```
 
 </TabItem>
@@ -135,14 +126,6 @@ Data Generator 是 Minecraft 原版的一种机制，可以用于自动生成资
 :::
 
 常见的开发工具均深度集成了 Gradle 的支持（或有对应的插件），无论是执行 Gradle 任务还是通过启动选项启动乃至调试游戏均可在开发工具内部进行。
-
-:::tip
-
-IntelliJ IDEA 用户可打开 Gradle 侧边栏，并在 `Tasks` 下找到上述任务并双击执行。在 IntelliJ IDEA 执行 `genIntellijRuns` 任务后，右上角便会出现四个相应的启动选项。
-
-![idea-run-example.png](idea-run-example.png)
-
-:::
 
 ## 使用 Kotlin 配置项目
 

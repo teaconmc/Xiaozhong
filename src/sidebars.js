@@ -4,6 +4,23 @@
 const sidebars = {
     'xiaozhong': [{
         type: 'category',
+        label: '正山小种 - 26.1 + NeoForge',
+        collapsed: false,
+        collapsible: false,
+        link: {
+            type: 'doc',
+            id: '26.1-neoforge/README'
+        },
+        items: [
+            '26.1-neoforge/preparations/README',
+            '26.1-neoforge/concepts/README',
+            '26.1-neoforge/block-item-objects/README',
+            '26.1-neoforge/localization-with-json/README',
+            '26.1-neoforge/block-entity/README',
+            '26.1-neoforge/world-gen/README',
+        ],
+    }, {
+        type: 'category',
         label: '正山小种 - 1.21 + NeoForge',
         collapsed: false,
         collapsible: false,

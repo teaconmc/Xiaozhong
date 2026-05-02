@@ -29,7 +29,7 @@ const config = {
           routeBasePath: '/',
           sidebarPath: require.resolve('./src/sidebars.js'),
           editUrl({ docPath }) {
-            return 'https://github.com/teaconmc/Xiaozhong/blob/1.21-neoforge/docs/' + docPath
+            return 'https://github.com/teaconmc/Xiaozhong/blob/26.1-neoforge/docs/' + docPath
           }
         },
         theme: {
@@ -56,8 +56,13 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: '正山小种 - Forge 模组开发指南',
+        title: '正山小种 - (Neo)Forge 模组开发指南',
         items: [
+          {
+            position: 'right',
+            to: '26.1-neoforge',
+            label: '26.1-NeoForge'
+          },
           {
             position: 'right',
             to: '1.21-neoforge',
@@ -83,7 +88,7 @@ const config = {
       footer: {
         style: 'dark',
         copyright: ''.concat(
-          `Copyright ©2022-${Math.min(2023, new Date().getFullYear())} TeaCon 执行委员会`, ` | `,
+          `Copyright ©2022-${Math.max(2023, new Date().getFullYear())} TeaCon 执行委员会`, ` | `,
           `<a href="https://beian.miit.gov.cn/" style="color:var(--ifm-footer-color)">闽ICP备20015816号</a>`,
         ),
       },
